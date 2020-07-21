@@ -1,6 +1,6 @@
 /*
 该脚本基于Peng-YM的caiyun.js改写,不需要进入box.js内进行填入彩云天气API和腾讯地图API,经纬度,使用苹果自带天气APP获取当前定位
-此脚本必须下载到本地文件夹中,并在该脚本第37行的双引号中填入彩云天气API,第38行双引号中填入腾讯地图API
+此脚本必须下载到本地文件夹中,并在该本地脚本中的第37行双引号内填入彩云天气API,第38行双引号内填入腾讯地图API
 配置：
 1. 配置自动定位
 根据平台添加如下配置
@@ -34,8 +34,8 @@ type=http-request, pattern=https://weather-data.apple.com, script-path=https://r
 */
 
 let config = {
-    caiyun_api: "",  //双引号中彩云天气API,自行申请,申请地址:https://dashboard.caiyunapp.com/user/sign_up/
-    tencent_api: "",  //双引号中腾讯地图API,自行申请,申请地址:https://lbs.qq.com/
+    caiyun_api: "",  //双引号内彩云天气API,自行申请,申请地址:https://dashboard.caiyunapp.com/user/sign_up/
+    tencent_api: "",  //双引号内腾讯地图API,自行申请,申请地址:https://lbs.qq.com/
 }
 
 /********************** SCRIPT START *********************************/
