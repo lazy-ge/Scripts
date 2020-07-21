@@ -1,34 +1,26 @@
 /*
 该脚本基于Peng-YM的caiyun.js改写,不需要进入box.js内进行填入彩云天气API和腾讯地图API,经纬度,使用苹果自带天气APP获取当前定位
-此脚本必须下载到本地文件夹中,并在该本地脚本中的第37行双引号内填入彩云天气API,第38行双引号内填入腾讯地图API
-配置：
+此脚本必须下载到本地文件夹中,并在该本地脚本中的第29行双引号内填入彩云天气API,第30行双引号内填入腾讯地图API
+注意:此脚本可能不适用于ios 12系统
+配置:
 1. 配置自动定位
 根据平台添加如下配置
 (1). Quantumult X
 [MITM]
-ios 13
 hostname=weather-data.apple.com
-ios 12
-hostname=api.weather.com
 [rewrite_local]
 https://weather-data.apple.com url script-request-header https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/caiyun.js
 [task_local]
 0 7-22/3 * * * weather.js, tag=彩云天气, img-url=https://raw.githubusercontent.com/chiupam/PNG/master/ColorfulClouds.png, enabled=true
 (2). Loon
 [MITM]
-ios 13
 hostname=weather-data.apple.com
-ios 12
-hostname=api.weather.com
 [Script]
 cron "0 7-22/3 * * *" script-path=weather.js, tag=彩云天气
 http-request https://weather-data.apple.com script-path=https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/caiyun.js, require-body=false, tag=彩云天气
 (3). Surge
 [MITM]
-ios 13
 hostname=weather-data.apple.com
-ios 12
-hostname=api.weather.com
 [Script]
 type=http-request, pattern=https://weather-data.apple.com, script-path=https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/caiyun.js, require-body=false
 */
