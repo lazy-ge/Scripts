@@ -8,7 +8,7 @@
 [MITM]
 hostname=weather-data.apple.com, api.weather.com
 [rewrite_local]
-https:\/\/((weather-data\.apple)|(api.weather))\.com url script-request-header https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/caiyun.js
+https:\/\/((weather-data\.apple)|(api.weather))\.com url script-request-header https://raw.githubusercontent.com/chiupam/Scripts/master/caiyun.js
 [task_local]
 0 7-22/3 * * * weather.js, tag=彩云天气, img-url=https://raw.githubusercontent.com/chiupam/PNG/master/ColorfulClouds.png, enabled=true
 (2).Loon
@@ -16,12 +16,12 @@ https:\/\/((weather-data\.apple)|(api.weather))\.com url script-request-header h
 hostname=weather-data.apple.com, api.weather.com
 [Script]
 cron "0 7-22/3 * * *" script-path=weather.js, tag=彩云天气
-http-request https:\/\/((weather-data\.apple)|(api.weather))\.com script-path=https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/caiyun.js, require-body=false, tag=彩云天气
+http-request https:\/\/((weather-data\.apple)|(api.weather))\.com script-path=https://raw.githubusercontent.com/chiupam/Scripts/master/caiyun.js, require-body=false, tag=彩云天气
 (3).Surge
 [MITM]
 hostname=weather-data.apple.com, api.weather.com
 [Script]
-type=http-request, pattern=https:\/\/((weather-data\.apple)|(api.weather))\.com, script-path=https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/caiyun.js, require-body=false
+type=http-request, pattern=https:\/\/((weather-data\.apple)|(api.weather))\.com, script-path=https://raw.githubusercontent.com/chiupam/Scripts/master/caiyun.js, require-body=false
 */
 
 var caiyun_api = "";  //双引号内彩云天气API,自行申请,申请地址:https://dashboard.caiyunapp.com/user/sign_up/
