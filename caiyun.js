@@ -24,10 +24,10 @@ hostname=weather-data.apple.com, api.weather.com
 type=http-request, pattern=https:\/\/((weather-data\.apple)|(api.weather))\.com, script-path=https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/caiyun.js, require-body=false
 */
 
-let config = {
-    caiyun_api: "",  //双引号内彩云天气API,自行申请,申请地址:https://dashboard.caiyunapp.com/user/sign_up/
-    tencent_api: "",  //双引号内腾讯地图API,自行申请,申请地址:https://lbs.qq.com/
-}
+var caiyun_api = "";  //双引号内彩云天气API,自行申请,申请地址:https://dashboard.caiyunapp.com/user/sign_up/
+var tencent_api = "";  //双引号内腾讯地图API,自行申请,申请地址:https://lbs.qq.com/
+//var lot_latitude = "";  //纬度
+//var lot_longitude = "";  //经度
 
 /********************** SCRIPT START *********************************/
 const $ = API("caiyun");
@@ -72,13 +72,7 @@ if (typeof $request !== "undefined") {
   !(async () => {
     const { caiyun, tencent } = $.read("token") || {};
 
-    if (!caiyun) {
-      throw new ERR.TokenError("❌ 未找到彩云Token令牌");
-    } else if (caiyun.indexOf("http") !== -1) {
-      throw new ERR.TokenError("❌ Token令牌 并不是 一个链接！");
-    } else if (!tencent) {
-      throw new ERR.TokenError("❌ 未找到腾讯地图Token令牌");
-    } else if (!$.read("location")) {
+    if (!$.read("location")) {
       // no location
       $.notify(
         "[彩云天气]",
@@ -132,7 +126,7 @@ async function query() {
     );
   }
   // query API
-  const url = `https://api.caiyunapp.com/v2.5/${config.caiyun_api}/${
+  const url = `https://api.caiyunapp.com/v2.5/${caiyun_api}/${
     $.read("location").longitude
   },${
     $.read("location").latitude
@@ -165,9 +159,7 @@ async function query() {
     await $.wait(Math.random() * 2000);
     $.log("Query location...");
     address = await $.get(
-      `https://apis.map.qq.com/ws/geocoder/v1/?key=${
-        config.tencent_api
-      }&location=${$.read("location").latitude},${$.read("location").longitude}`
+      `https://apis.map.qq.com/ws/geocoder/v1/?key=${tencent_api}&location=${$.read("location").latitude},${$.read("location").longitude}`
     )
       .then((resp) => {
         const body = JSON.parse(resp.body);
