@@ -1,5 +1,5 @@
 /*
-此脚本基于Peng-YM的caiyun.js改写,不需要进入box.js内进行填入彩云天气API和腾讯地图API,经纬度,使用苹果自带天气APP获取当前定位(不可在天气APP中手动添加别的城市天气)
+此脚本基于Peng-YM的caiyun.js(https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/caiyun.js)改写,不需要进入box.js内进行填入彩云天气API和腾讯地图API,经纬度,使用苹果自带天气APP获取当前定位(不可在天气APP中手动添加别的城市天气)
 此脚本必须下载到本地文件夹中,并在该本地脚本中的第27行双引号内填入彩云天气API,第28行双引号内填入腾讯地图API
 配置:
 1.配置自动定位
