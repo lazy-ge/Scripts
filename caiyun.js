@@ -24,7 +24,7 @@ hostname=weather-data.apple.com, api.weather.com
 type=http-request, pattern=https:\/\/((weather-data\.apple)|(api.weather))\.com, script-path=https://raw.githubusercontent.com/chiupam/Scripts/master/caiyun.js, require-body=false
 */
 
-var caiyun_api = "........";  //双引号内彩云天气API,请自行申请,申请地址:https://dashboard.caiyunapp.com/user/sign_up/
+var caiyun_api = "********";  //双引号内彩云天气API,请自行申请,申请地址:https://dashboard.caiyunapp.com/user/sign_up/
 var tencent_api = "EJOBZ-HCGCX-34V4P-TKXDW-7OHHV-5GF4I";  //双引号内腾讯地图API,可自行申请,申请地址:https://lbs.qq.com/dev/console/user/info
 
 if (caiyun_api ==""){
