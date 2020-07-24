@@ -1,4 +1,4 @@
-const name = '东东萌宠';
+const name = '';
 const $ = new Env(name);
 const Key = '';//单引号内自行填写您抓取的京东Cookie
 //直接用NobyDa的jd cookie
