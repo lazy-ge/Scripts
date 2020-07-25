@@ -8,7 +8,8 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 let jdNotify = $.getdata('jdPetNotify');
 let shareCodes = [ // 这个列表填入你要助力的好友的shareCode, 最多可能是5个
     'MTAxODc2NTEzNTAwMDAwMDAyNzQ1OTEzOQ==',
-    'MTAxODc2NTEzMjAwMDAwMDAyNzA4MjkwNw=='
+    'MTAxODc2NTEzMjAwMDAwMDAyNzA4MjkwNw==',
+    'MTAxODc2NTEzNDAwMDAwMDAzMDY0OTU3NQ=='
 ]
 // 添加box功能
 // 【用box订阅的好处】
