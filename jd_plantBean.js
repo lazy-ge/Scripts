@@ -8,9 +8,10 @@ let jdNotify = $.getdata('jdPlantBeanNotify');
 //京东接口地址
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
-var plantUuids = [ // 这个列表填入你要助力的好友的plantUuid
+var plantUuids = [
     'olmijoxgmjutyw3xraw4bu7jkcdvszaezqfffiq',
-    'sptv55gzcksfquzoq5k2ubuj4i'
+    'sptv55gzcksfquzoq5k2ubuj4i',
+    'mlrdw3aw26j3xnp6oj2azes26laj5dwiyn5wdxa'
 ]
 let currentRoundId = null;//本期活动id
 let lastRoundId = null;//上期id
@@ -21,7 +22,7 @@ let awardState = '';//上期活动的京豆是否收取
 // 1️⃣脚本也可以远程挂载了。助力功能只需在box里面设置助力码。
 // 2️⃣所有脚本的cookie都可以备份，方便你迁移到其他支持box的软件。
 let isBox = false //默认没有使用box
-const boxShareCodeArr = ['jd_plantBean1','jd_plantBean2'];
+const boxShareCodeArr = ['jd_plantBean1','jd_plantBean2','jd_plantBean3'];
 isBox = boxShareCodeArr.some((item) => {
   const boxShareCode = $.getdata(item);
   return (boxShareCode !== undefined && boxShareCode !== null && boxShareCode !== '');
