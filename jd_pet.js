@@ -6,7 +6,7 @@ const cookie =  Key ? Key : $.getdata('CookieJD');
 //京东接口地址
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 let jdNotify = $.getdata('jdPetNotify');
-let shareCodes = [ // 这个列表填入你要助力的好友的shareCode, 最多可能是5个
+let shareCodes = [
     'MTAxODc2NTEzNTAwMDAwMDAyNzQ1OTEzOQ==',
     'MTAxODc2NTEzMjAwMDAwMDAyNzA4MjkwNw==',
     'MTAxODc2NTEzNDAwMDAwMDAzMDY0OTU3NQ=='
