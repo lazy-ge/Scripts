@@ -1,3 +1,5 @@
+//搬运自nzw9314(https://github.com/nzw9314/QuantumultX/blob/master/Task/jd_moneytTree.js),不弹窗提示
+
 const $ = new Env('');
 const Key = '';//单引号内自行填写您抓取的京东Cookie
 //直接用NobyDa的jd cookie
