@@ -76,9 +76,6 @@ function user_info() {
                   $.setdata('0', $.treeMsgTime);
                 }
                 subTitle = `【${userInfo.nick}】${userInfo.treeInfo.treeName}`;
-                // message += `【我的金果数量】${userInfo.treeInfo.fruit}\n`;
-                // message += `【我的金币数量】${userInfo.treeInfo.coin}\n`;
-                // message += `【距离${userInfo.treeInfo.level + 1}级摇钱树还差】${userInfo.treeInfo.progressLeft}\n`;
               } else {
                 $.msg($.name, `【提示】请先去京东app参加摇钱树活动\n入口：我的->游戏与互动->查看更多`, '', {"open-url": "openApp.jdMobile://"});
               }
@@ -123,9 +120,6 @@ function dayWork() {
             // missionId.push(item.mid);
             taskInfo.push(item);
           }
-          // if (item.workType === 7 && item.prizeType === 0) {
-          //   missionId2 = item.mid;
-          // }
         })
       }
     }
@@ -133,12 +127,7 @@ function dayWork() {
     console.log(`浏览任务列表taskInfo::${JSON.stringify(taskInfo)}\n`)
     for (let item of canTask) {
       if (item.workType === 1) {
-        //  签到任务
-        // let signRes = await sign();
-        // console.log(`签到结果:${JSON.stringify(signRes)}`);
         if (item.workStatus === 0) {
-          // const data = {"source":2,"workType":1,"opType":2};
-          // let signRes = await request('doWork', data);
           let signRes = await sign();
           console.log(`三餐签到结果:${JSON.stringify(signRes)}`);
         } else if (item.workStatus === 2) {
@@ -203,14 +192,6 @@ function harvest() {
       // gen.next();
     })
   })
-  // request('harvest', data).then((harvestRes) => {
-  //   if (harvestRes.resultCode === 0 && harvestRes.resultData.code === '200') {
-  //     let data = harvestRes.resultData.data;
-  //     message += `【距离${data.treeInfo.level + 1}级摇钱树还差】${data.treeInfo.progressLeft}\n`;
-  //     fruitTotal = data.treeInfo.fruit;
-  //     gen.next();
-  //   }
-  // })
 }
 //卖出金果，得到金币
 function sell() {
@@ -229,14 +210,7 @@ function sell() {
     } else {
       rs()
     }
-    // request('sell', params).then(response => {
-    //   rs(response);
-    // })
   })
-  // request('sell', params).then((sellRes) => {
-  //   console.log(`卖出金果结果:${JSON.stringify(sellRes)}\n`)
-  //   gen.next();
-  // })
 }
 //获取金币和金果数量
 function myWealth() {
@@ -337,10 +311,6 @@ async function setUserLinkStatus(missionId) {
     console.log(`missionId为${missionId}：：第${index + 1}次浏览活动完成: ${JSON.stringify(response)}`);
     resultCode = response.resultCode;
     code = response.resultData.code;
-    // if (resultCode === 0) {
-    //   let sportRevardResult = await getSportReward();
-    //   console.log(`领取遛狗奖励完成: ${JSON.stringify(sportRevardResult)}`);
-    // }
     index++;
   } while (index < 7) //不知道结束的条件，目前写死循环7次吧
   console.log('浏览店铺任务结束');
@@ -350,7 +320,6 @@ async function setUserLinkStatus(missionId) {
   return new Promise((resolve, reject) => {
     resolve(receiveAwardRes);
   })
-  // gen.next();
 }
 // 领取浏览后的奖励
 function receiveAward(mid) {
@@ -380,17 +349,6 @@ function share(data) {
       rs(response);
     })
   })
-  // const data = 'reqData={"source":0,"workType":2,"opType":1}';
-  // request('doWork', data).then(res => {
-  //   console.log(`分享111:${JSON.stringify(res)}`)
-  //   setTimeout(() => {
-  //     const data2 = 'reqData={"source":0,"workType":2,"opType":2}';
-  //     request('doWork', data2).then(res => {
-  //       console.log(`分享222:${JSON.stringify(res)}`)
-  //     })
-  //   }, 2000)
-  // })
-  // await sleep(3);
 }
 function msgControl() {
   return new Promise((resolve) => {
@@ -416,18 +374,6 @@ async function request(function_id, body = {}) {
       } finally {
         resolve(data)
       }
-      // if (err) {
-      //   console.log("=== request error -s--");
-      //   console.log("=== request error -e--");
-      // } else {
-      //   try {
-      //     data = JSON.parse(data);
-      //   } catch (e) {
-      //     console.log(e)
-      //   } finally {
-      //     resolve(data)
-      //   }
-      // }
     })
   })
 }
