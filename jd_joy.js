@@ -99,23 +99,6 @@ function* step() {
             } else {
                 console.log(`浏览商品奖励积分返回结果${JSON.stringify(deskGoodDetails)}`)
             }
-            // 看激励视频得狗粮
-            // let taskVideoRes = yield taskVideo();
-            // console.log(`视频激--任务列表--${JSON.stringify(taskVideoRes)}`);
-            // if (taskVideoRes.success) {
-            //   let taskArr = {};
-            //   for (let item of taskVideoRes.datas) {
-            //     if (item.ViewVideo) {
-            //       taskArr = item;
-            //     }
-            //   }
-            //   let joinedCount = taskArr.joinedCount || 0;
-            //   for (let i = 0; i < new Array(taskArr.taskChance - joinedCount).fill('').length; i++) {
-            //     console.log(`开始第${i+1}次看激励视频`);
-            //       let sanVideoRes = yield sanVideo();
-            //     console.log(`看视频激励结果--${JSON.stringify(sanVideoRes)}`);
-            //   }
-            // }
             // 喂食
             let feedPetsResult = yield feedPets()
             console.log(`喂食结果${JSON.stringify(feedPetsResult)}`)
@@ -242,19 +225,6 @@ function request(url) {
       } finally {
         sleep(data);
       }
-      // if (err) {
-      //   console.log("\n京东宠汪汪: API查询请求失败 ‼️‼️")
-      //   $.msg('京东宠汪汪', `脚本执行中断`, `京东宠汪汪: API查询请求失败 ‼️‼️`);
-      //   $.done();
-      // } else {
-      //   try {
-      //     data = JSON.parse(data);
-      //   } catch (e) {
-      //     console.log(e);
-      //   } finally {
-      //     sleep(data);
-      //   }
-      // }
     })
 }
 
@@ -288,19 +258,6 @@ function requestPost(url, body, ContentType) {
       } finally {
         sleep(data);
       }
-      // if (err) {
-      //   console.log("\n京东宠汪汪: API查询请求失败 ‼️‼️")
-      //   $.msg('京东宠汪汪', `${err.name}`, `京东宠汪汪: API查询请求失败 ‼️‼️`);
-      //   $.done();
-      // } else {
-      //   try {
-      //     data = JSON.parse(data);
-      //   } catch (e) {
-      //     console.log(e);
-      //   } finally {
-      //     sleep(data);
-      //   }
-      // }
     })
 }
 
