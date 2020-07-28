@@ -332,13 +332,7 @@ function plantReceiveNutrientsTask() {
   request('receiveNutrientsTask', body);
 }
 function receiveNutrientsTask(awardType) {
-    // let functionId = arguments.callee.name.toString();
-    // let body = {
-    //     "monitor_refer": "plant_receiveNutrientsTask",
-    //     "monitor_source": "plant_m_plant_index",//plant_app_plant_index,plant_m_plant_index
-    //     "awardType": `"${awardType}"`,
-    //     "version": "9.0.0.1"// "9.0.0.1", "8.4.0.0"
-    // }
+
     //这里很奇怪，试了很多情况都不行，直接这样了
     requestGet(`https://api.m.jd.com/client.action?functionId=receiveNutrientsTask&body=%7B%22awardType%22%3A%22${awardType}%22%2C%22monitor_source%22%3A%22plant_m_plant_index%22%2C%22monitor_refer%22%3A%22plant_receiveNutrientsTask%22%2C%22version%22%3A%228.4.0.0%22%7D&appid=ld&client=apple&clientVersion=&networkType=&osVersion=&uuid=`)
     // request(functionId, body);// `body=${escape(JSON.stringify(body))}&client=apple&appid=ld`
@@ -516,17 +510,6 @@ function taskurl(function_id, body) {
         }
     }
 }
-
-// function taskurl(function_id, body) {
-//     return {
-//         url: `${JD_API_HOST}?functionId=${function_id}`,
-//         body: body, //escape`functionId=${function_id}&body=${JSON.stringify(body)}&appid=wh5`
-//         headers: {
-//             Cookie: cookie,
-//         },
-//         method: "POST",
-//     }
-// }
 
 function sleep(response) {
     console.log('休息一下');
