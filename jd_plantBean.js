@@ -1,3 +1,5 @@
+//搬运自nzw9314(https://github.com/nzw9314/QuantumultX/blob/master/Task/jd_plantBean.js),不弹窗提示
+
 const name = '';
 const $ = new Env(name);
 const Key = '';//单引号内自行填写您抓取的京东Cookie
@@ -22,7 +24,7 @@ let awardState = '';//上期活动的京豆是否收取
 // 1️⃣脚本也可以远程挂载了。助力功能只需在box里面设置助力码。
 // 2️⃣所有脚本的cookie都可以备份，方便你迁移到其他支持box的软件。
 let isBox = false //默认没有使用box
-const boxShareCodeArr = ['jd_plantBean1','jd_plantBean2','jd_plantBean3'];
+const boxShareCodeArr = ['jd_plantBean1', 'jd_plantBean2', 'jd_plantBean3'];
 isBox = boxShareCodeArr.some((item) => {
   const boxShareCode = $.getdata(item);
   return (boxShareCode !== undefined && boxShareCode !== null && boxShareCode !== '');
