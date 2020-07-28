@@ -133,13 +133,6 @@ async function feedReachInit() {
     // let foodAmount = petInfo.foodAmount; //剩余狗粮
     let finishedTimes = taskInfo.feedReachInit.hadFeedAmount / 10; //已经喂养了几次
     let needFeedTimes = 10 - finishedTimes; //还需要几次
-    // let canFeedTimes = foodAmount / 10;
-    // if (canFeedTimes < needFeedTimes) {
-        // if (confirm('当前剩余狗粮' + foodAmount + 'g, 已不足投食' + needFeedTimes + '次, 确定要继续吗?') === false) {
-        // 	console.log('你拒绝了执行喂养十次任务');
-        // 	gen.next();
-        // }
-    // }
 
     let tryTimes = 20; //尝试次数
     do {
