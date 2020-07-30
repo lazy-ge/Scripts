@@ -33,7 +33,7 @@ function* entrance() {
   } else if (task_status === 1) {
     console.log(`任务进行中：${JSON.stringify(destination)}`);
   } else if (task_status === 2) {
-    $.msg(name, subTitle, '天天加速2个京豆已到账');
+    $.msg();
     yield flyTask_state();
     console.log(`task_status::${task_status}`)
     console.log(`开启新任务：${JSON.stringify(destination)}`);
@@ -190,7 +190,7 @@ async function useEnergy() {
     console.log(`使用燃料的结果：：${_energyProp_use.message}`)
     if (_energyProp_use.code !== 0) {
       console.log(`${_energyProp_use.message},跳出循环`);
-      $.msg($.name, '', "【上轮太空旅行】2 🐶京豆已到账");
+      $.msg();
       break
     }
   }
