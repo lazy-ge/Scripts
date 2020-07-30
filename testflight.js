@@ -1,9 +1,5 @@
+//搬运自songyangzz(https://github.com/songyangzz/QxScripts/blob/master/testflight.js)
 
-/**
- * 参考chavyleung和NobyDa的写法
- * 写入要监测的公测tf appkey，当有空位的时候会弹出通知。
- * 建议task时间间隔小点。
- */
 const sy = init()
 const title = 'testfilght';
 const url = "https://testflight.apple.com/join/";
@@ -12,7 +8,7 @@ const url = "https://testflight.apple.com/join/";
  * 填入要监测的appkey。从testfligt地址获取。
  * 例如"VCIvwk2g,wArXdacJ,2vnRvOTX,LzjySbQx,IdFRwmNy,qDkBu2ur,4Qt2lIm5,ZzqOu8tX,ftCqFe6D,fy7LvHVA,QKqitFwc"
 */
-const appkey = "VCIvwk2g";
+const appkey = "VCIvwk2g,wArXdacJ,2vnRvOTX,LzjySbQx,IdFRwmNy,qDkBu2ur,4Qt2lIm5,ZzqOu8tX,ftCqFe6D,fy7LvHVA,QKqitFwc";
 
 //是否在没有tf位置的时候仍然弹出通知，默认不弹出,防止过多无用通知。
 var isNOtify = false;
