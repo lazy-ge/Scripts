@@ -8,10 +8,10 @@ const cookie =  Key ? Key : $.getdata('CookieJD');
 //京东接口地址
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 let jdNotify = $.getdata('jdPetNotify');
-let shareCodes = [ // 这个列表填入你要助力的好友的shareCode, 最多可能是5个
-  'MTAxODc2NTEzNTAwMDAwMDAyNzQ1OTEzOQ==',
-  'MTAxODc2NTEzMjAwMDAwMDAyNzA4MjkwNw==',
-  'MTAxODc2NTEzNDAwMDAwMDAzMDY0OTU3NQ=='
+let shareCodes = [
+'MTAxODc2NTEzNTAwMDAwMDAyNzQ1OTEzOQ==',
+'MTAxODc2NTEzMjAwMDAwMDAyNzA4MjkwNw==',
+'MTAxODc2NTEzNDAwMDAwMDAzMDY0OTU3NQ=='
 ]
 // 添加box功能
 // 【用box订阅的好处】
@@ -133,6 +133,13 @@ async function feedReachInit() {
     // let foodAmount = petInfo.foodAmount; //剩余狗粮
     let finishedTimes = taskInfo.feedReachInit.hadFeedAmount / 10; //已经喂养了几次
     let needFeedTimes = 10 - finishedTimes; //还需要几次
+    // let canFeedTimes = foodAmount / 10;
+    // if (canFeedTimes < needFeedTimes) {
+        // if (confirm('当前剩余狗粮' + foodAmount + 'g, 已不足投食' + needFeedTimes + '次, 确定要继续吗?') === false) {
+        // 	console.log('你拒绝了执行喂养十次任务');
+        // 	gen.next();
+        // }
+    // }
 
     let tryTimes = 20; //尝试次数
     do {
@@ -212,7 +219,7 @@ async function slaveHelp() {
         }
     }
     if (helpPeoples && helpPeoples.length > 0) {
-        message += `【您助力的好友】${helpPeoples}\n`;
+        message += `【您助力的好友】${helpPeoples.substr(0, helpPeoples.length - 1)}\n`;
     }
 
     gen.next();
