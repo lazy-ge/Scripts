@@ -1,19 +1,17 @@
 //搬运自nzw9314(https://github.com/nzw9314/QuantumultX/blob/master/Task/jd_fruit.js),不弹窗提示
 
-let name = '';
+const name = '';
 const $ = new Env(name);
 const Key = '';//单引号内自行填写您抓取的京东Cookie
 //直接用NobyDa的jd cookie
-const cookie = Key ? Key : $.getdata('CookieJD');
+const cookie =  Key ? Key : $.getdata('CookieJD');
 //京东接口地址
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
-
-let jdNotify = $.getdata('jdFruitNotify');
-//助力好友分享码(最多4个,否则后面的助力失败),原因:京东农场每人每天只有四次助力机会
+let jdNotify = $.getdata('jdPetNotify');
 let shareCodes = [
-'118ef90ea2be4106ab45f3ff31c2a8f1&apos',
-'7b5f2dd4b5514226b280b702b2aab4f3&apos',
-'9e4d4547d5e3438a916c5ad8fe2c6f36&apos'
+'MTAxODc2NTEzNTAwMDAwMDAyNzQ1OTEzOQ==',
+'MTAxODc2NTEzMjAwMDAwMDAyNzA4MjkwNw==',
+'MTAxODc2NTEzNDAwMDAwMDAzMDY0OTU3NQ=='
 ]
 
 // 添加box功能
@@ -21,7 +19,7 @@ let shareCodes = [
 // 1️⃣脚本也可以远程挂载了。助力功能只需在box里面设置助力码。
 // 2️⃣所有脚本的cookie都可以备份，方便你迁移到其他支持box的软件。
 let isBox = false //默认没有使用box
-const boxShareCodeArr = ['jd_fruit1', 'jd_fruit2', 'jd_fruit3', 'jd_fruit4'];
+const boxShareCodeArr = ['jd_pet1', 'jd_pet2', 'jd_pet3', 'jd_pet4', 'jd_pet5'];
 isBox = boxShareCodeArr.some((item) => {
   const boxShareCode = $.getdata(item);
   return (boxShareCode !== undefined && boxShareCode !== null && boxShareCode !== '');
@@ -34,764 +32,492 @@ if (isBox) {
     }
   }
 }
-const Task = step()
-Task.next();
+let petInfo = null, taskInfo = null, message = '', subTitle = '', goodsUrl = '', taskInfoKey = [];
 
-let farmTask = null, isFruitFinished = false;
+//按顺序执行, 尽量先执行不消耗狗粮的任务, 避免中途狗粮不够, 而任务还没做完
+let function_map = {
+  signInit: signInit, //每日签到
+  threeMealInit: threeMealInit, //三餐
+  browseSingleShopInit: browseSingleShopInit, //浏览店铺1
+  browseSingleShopInit2: browseSingleShopInit2, //浏览店铺2
+  browseSingleShopInit3: browseSingleShopInit3, //浏览店铺3
+  browseShopsInit: browseShopsInit, //浏览店铺s, 目前只有一个店铺
+  firstFeedInit: firstFeedInit, //首次喂食
+  inviteFriendsInit: inviteFriendsInit, //邀请好友, 暂未处理
+  feedReachInit: feedReachInit, //喂食10次任务  最后执行投食10次任务, 提示剩余狗粮是否够投食10次完成任务, 并询问要不要继续执行
+}
 
-// let farmInfo = null;
-
-function* step() {
-  let message = '';
-  let subTitle = '';
-  let option = {};
-  if (!cookie) {
-    $.msg(name, '【提示】请先获取cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', {"open-url": "https://bean.m.jd.com/"});
-    $.done();
-    return
-  }
-  let farmInfo = yield initForFarm();
-  if (farmInfo.farmUserPro) {
-    option['media-url'] = farmInfo.farmUserPro.goodsImage;
-    subTitle = `【${farmInfo.farmUserPro.nickName}】${farmInfo.farmUserPro.name}`;
-    console.log(`\n【您的互助码shareCode】 ${farmInfo.farmUserPro.shareCode}\n`);
-    console.log(`\n【已成功兑换水果】${farmInfo.farmUserPro.winTimes}次\n`)
-    if (farmInfo.treeState === 2) {
-      option['open-url'] = "openApp.jdMobile://";
-      $.msg(name, `【提醒⏰】${farmInfo.farmUserPro.name}已可领取`, '请去京东APP或微信小程序查看', option);
-      $.done();
-      return;
-    }
-    farmTask = yield taskInitForFarm();
-    // console.log(`当前任务详情: ${JSON.stringify(farmTask)}`);
-    console.log(`开始签到`);
-    if (!farmTask.signInit.todaySigned) {
-      let signResult = yield signForFarm(); //签到
-      if (signResult.code == "0") {
-        message += `【签到成功】获得${signResult.amount}g💧\n`//连续签到${signResult.signDay}天
-        // if (signResult.todayGotWaterGoalTask.canPop) {
-        //   let goalResult = yield gotWaterGoalTaskForFarm();
-        //   console.log(`被水滴砸中奖励:${JSON.stringify(goalResult)}`);
-        //   if (goalResult.code === '0') {
-        //     message += `【被水滴砸中】获取：${goalResult.addEnergy}g\n`
-        //   }
-        // }
-      } else {
-        message += `签到失败,详询日志\n`
-        console.log(`签到结果:  ${JSON.stringify(signResult)}`);
-      }
-    } else {
-      console.log(`今天已签到,连续签到${farmTask.signInit.totalSigned},下次签到可得${farmTask.signInit.signEnergyEachAmount}g`);
-      // message += `今天已签到,连续签到${farmTask.signInit.totalSigned},下次签到可得${farmTask.signInit.signEnergyEachAmount}g\n`
-    }
-    // 被水滴砸中
-    console.log(`被水滴砸中： ${farmInfo.todayGotWaterGoalTask.canPop ? '是' : '否'}`);
-    if (farmInfo.todayGotWaterGoalTask.canPop) {
-      let goalResult = yield gotWaterGoalTaskForFarm();
-      //console.log(`被水滴砸中奖励:${JSON.stringify(goalResult)}`);
-      if (goalResult.code === '0') {
-        message += `【被水滴砸中】获得${goalResult.addEnergy}g💧\n`
-      }
-    }
-    console.log(`签到结束,开始广告浏览任务`);
-    if (!farmTask.gotBrowseTaskAdInit.f) {
-      let adverts = farmTask.gotBrowseTaskAdInit.userBrowseTaskAds
-      let browseReward = 0
-      let browseSuccess = 0
-      let browseFail = 0
-      for (let advert of adverts) { //开始浏览广告
-        if (advert.limit <= advert.hadFinishedTimes) {
-          // browseReward+=advert.reward
-          console.log(`${advert.mainTitle}+ ' 已完成`);//,获得${advert.reward}g
-          continue;
-        }
-        console.log('正在进行广告浏览任务: ' + advert.mainTitle);
-        let browseResult = yield browseAdTaskForFarm(advert.advertId, 0);
-        if (browseResult.code == 0) {
-          console.log(`${advert.mainTitle}浏览任务完成`);
-          //领取奖励
-          let browseRwardResult = yield browseAdTaskForFarm(advert.advertId, 1);
-          if (browseRwardResult.code == '0') {
-            console.log(`领取浏览${advert.mainTitle}广告奖励成功,获得${browseRwardResult.amount}g`)
-            browseReward += browseRwardResult.amount
-            browseSuccess++
-          } else {
-            browseFail++
-            console.log(`领取浏览广告奖励结果:  ${JSON.stringify(browseRwardResult)}`)
-          }
-        } else {
-          browseFail++
-          console.log(`广告浏览任务结果:   ${JSON.stringify(browseResult)}`);
-        }
-      }
-      if (browseFail > 0) {
-        message += `【广告浏览】完成${browseSuccess}个,失败${browseFail},获得${browseReward}g💧\n`
-      } else {
-        message += `【广告浏览】完成${browseSuccess}个,获得${browseReward}g💧\n`
-      }
-    } else {
-      console.log(`今天已经做过浏览任务`);
-      // message += '今天已经做过浏览任务\n'
-    }
-    //定时领水
-    if (!farmTask.gotThreeMealInit.f) {
-      //
-      let threeMeal = yield gotThreeMealForFarm();
-      if (threeMeal.code == "0") {
-        message += `【定时领水】获得${threeMeal.amount}g💧\n`
-      } else {
-        message += `【定时领水】失败,详询日志\n`
-        console.log(`定时领水成功结果:  ${JSON.stringify(threeMeal)}`);
-      }
-    } else {
-      // message += '当前不在定时领水时间断或者已经领过\n'
-      console.log('当前不在定时领水时间断或者已经领过')
-    }
-    //打卡领水
-    console.log('开始打卡领水活动（签到，关注，领券）')
-    let clockInInit = yield clockInInitForFarm();
-    // console.log(`clockInInit---${JSON.stringify(clockInInit)}`)
-    if (clockInInit.code === '0') {
-      // 签到得水滴
-      if (!clockInInit.todaySigned) {
-        console.log('开始今日签到');
-        // request('clockInForFarm', {"type" : 1});
-        let clockInForFarmRes = yield clockInForFarm();
-        console.log(`打卡结果${JSON.stringify(clockInForFarmRes)}`);
-        if (clockInForFarmRes.code === '0') {
-          message += `【第${clockInForFarmRes.signDay}天签到】获得${clockInForFarmRes.amount}g💧\n`//连续签到${signResult.signDay}天
-          // if (clockInForFarmRes.todayGotWaterGoalTask.canPop) {
-          //   let goalResult = yield gotWaterGoalTaskForFarm();
-          //   console.log(`被水滴砸中奖励:${JSON.stringify(goalResult)}`);
-          //   if (goalResult.code === '0') {
-          //     message += `【被水滴砸中】${goalResult.addEnergy}g\n`;
-          //   }
-          // }
-        }
-      }
-      // 连续七天签到-惊喜礼包
-      if (!clockInInit.gotClockInGift && clockInInit.totalSigned === 7) {
-        console.log('开始领取--惊喜礼包38g水滴');
-        let gotClockInGiftRes = yield gotClockInGift();
-        if (gotClockInGiftRes.code === '0') {
-          message += `【惊喜礼包】获得${gotClockInGiftRes.amount}g💧\n`
-        }
-      }
-      // 限时关注得水滴
-      if (clockInInit.themes && clockInInit.themes.length > 0) {
-        for (let item of clockInInit.themes) {
-          if (!item.hadGot) {
-            console.log(`关注ID${item.id}`);
-            let themeStep1 = yield clockInFollowForFarm(item.id, "theme", "1");
-            console.log(`themeStep1--结果${JSON.stringify(themeStep1)}`);
-            if (themeStep1.code === '0') {
-              let themeStep2 = yield clockInFollowForFarm(item.id, "theme", "2");
-              console.log(`themeStep2--结果${JSON.stringify(themeStep2)}`);
-              if (themeStep2.code === '0') {
-                console.log(`关注${item.name}，获得水滴${themeStep2.amount}g`);
-              }
-            }
-          }
-        }
-      }
-      // 限时领券得水滴
-      if (clockInInit.venderCoupons && clockInInit.venderCoupons.length > 0) {
-        for (let item of clockInInit.venderCoupons) {
-          if (!item.hadGot) {
-            console.log(`领券的ID${item.id}`);
-            let venderCouponStep1 = yield clockInFollowForFarm(item.id, "venderCoupon", "1");
-            console.log(`venderCouponStep1--结果${JSON.stringify(venderCouponStep1)}`);
-            if (venderCouponStep1.code === '0') {
-              let venderCouponStep2 = yield clockInFollowForFarm(item.id, "venderCoupon", "2");
-              if (venderCouponStep2.code === '0') {
-                console.log(`venderCouponStep2--结果${JSON.stringify(venderCouponStep2)}`);
-                console.log(`从${item.name}领券，获得水滴${venderCouponStep2.amount}g`);
-              }
-            }
-          }
-        }
-      }
-    }
-    console.log('\n开始打卡领水活动（签到，关注，领券）结束\n');
-    // 水滴雨
-    let executeWaterRain = !farmTask.waterRainInit.f;
-    if (executeWaterRain) {
-      console.log(`水滴雨任务，每天两次，最多可得10g水滴`);
-      console.log(`两次水滴雨任务是否全部完成：${farmTask.waterRainInit.f ? '是' : '否'}`);
-      if (farmTask.waterRainInit.lastTime) {
-        if (new Date().getTime() < (farmTask.waterRainInit.lastTime + 3 * 60 * 60 * 1000)) {
-          executeWaterRain = false;
-          message += `【第${farmTask.waterRainInit.winTimes + 1}次水滴雨】未到时间，请稍后再试\n`;
-        }
-      }
-      if (executeWaterRain) {
-        console.log(`开始水滴雨任务,这是第${farmTask.waterRainInit.winTimes + 1}次，剩余${2 - (farmTask.waterRainInit.winTimes + 1)}次`);
-        let waterRain = yield waterRainForFarm();
-        console.log('水滴雨waterRain', waterRain);
-        if (waterRain.code === '0') {
-          console.log('水滴雨任务执行成功，获得水滴：' + waterRain.addEnergy + 'g');
-          message += `【第${farmTask.waterRainInit.winTimes + 1}次水滴雨】获得${waterRain.addEnergy}g水滴\n`
-        }
-      }
-      // if (farmTask.waterRainInit.winTimes === 0) {
-      //   console.log(`开始水滴雨任务,这是第${farmTask.waterRainInit.winTimes + 1}次，剩余${2 - (farmTask.waterRainInit.winTimes + 1)}次`);
-      //   let waterRain = yield waterRainForFarm();
-      //   console.log('水滴雨waterRain', waterRain);
-      //   if (waterRain.code === '0') {
-      //     console.log('水滴雨任务执行成功，获得水滴：' + waterRain.addEnergy + 'g');
-      //     message += `【第${farmTask.waterRainInit.winTimes + 1}次水滴雨】获得${waterRain.addEnergy}g水滴\n`
-      //   }
-      // } else {
-      //   //执行了第一次水滴雨。需等待3小时候才能再次执行
-      //   if (new Date().getTime()  > (farmTask.waterRainInit.lastTime + 3 * 60 * 60 *1000)) {
-      //     console.log(`开始水滴雨任务,这是第${farmTask.waterRainInit.winTimes + 1}次，剩余${2 - (farmTask.waterRainInit.winTimes + 1)}次`);
-      //     let waterRain = yield waterRainForFarm();
-      //     console.log('水滴雨waterRain', waterRain);
-      //     if (waterRain.code === '0') {
-      //       console.log('水滴雨任务执行成功，获得水滴：' + waterRain.addEnergy + 'g');
-      //       message += `【第${farmTask.waterRainInit.winTimes + 1}次水滴雨】获得${waterRain.addEnergy}g水滴\n`
-      //     }
-      //   } else {
-      //     console.log(`【第${farmTask.waterRainInit.winTimes + 1}次水滴雨】未到时间，请稍后再试\n`)
-      //     message += `【第${farmTask.waterRainInit.winTimes + 1}次水滴雨】未到时间，请稍后再试\n`
-      //   }
-      // }
-    } else {
-      message += `【水滴雨】已全部完成，获得20g💧\n`
-    }
-    const masterHelpResult = yield masterHelpTaskInitForFarm();
-    if (masterHelpResult.code === '0') {
-      if (masterHelpResult.masterHelpPeoples && masterHelpResult.masterHelpPeoples.length >= 5) {
-        // 已有五人助力。领取助力后的奖励
-        if (!masterHelpResult.masterGotFinal) {
-          const masterGotFinished = yield masterGotFinishedTaskForFarm();
-          if (masterGotFinished.code === '0') {
-            console.log(`已成功领取好友助力奖励：【${masterGotFinished.amount}】g水`);
-            message += `【额外奖励】${masterGotFinished.amount}g水领取成功\n`;
-          }
-        } else {
-          console.log("已经领取过5好友助力额外奖励");
-          message += `【额外奖励】已被领取过\n`;
-        }
-      } else {
-        console.log("助力好友未达到5个");
-        message += `【额外奖励】领取失败,原因：助力好友未达5个\n`;
-      }
-      if (masterHelpResult.masterHelpPeoples && masterHelpResult.masterHelpPeoples.length > 0) {
-        let str = '';
-        masterHelpResult.masterHelpPeoples.map((item, index) => {
-          if (index === (masterHelpResult.masterHelpPeoples.length - 1)) {
-            str += item.nickName || "匿名用户";
-          } else {
-            str += (item.nickName || "匿名用户") + '，';
-          }
-          let date = new Date(item.time);
-          let time = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getMinutes();
-          console.log(`\n京东昵称【${item.nickName || "匿名用户"}】 在 ${time} 给您助过力\n`);
-        })
-        message += `【助力您的好友】${str}\n`;
-      }
-    }
-    //助力
-    // masterHelpTaskInitForFarm
-    console.log('开始助力好友')
-    let salveHelpAddWater = 0;
-    let remainTimes = 4;//今日剩余助力次数,默认4次（京东农场每人每天4次助力机会）。
-    let helpSuccessPeoples = '';//成功助力好友
-    for (let code of shareCodes) {
-      if (code == farmInfo.farmUserPro.shareCode) {
-        console.log('跳过自己的shareCode')
-        continue
-      }
-      console.log(`开始助力好友: ${code}`);
-      let helpResult = yield masterHelp(code)
-      if (helpResult.code == 0) {
-        if (helpResult.helpResult.code === '0') {
-          //助力成功
-          salveHelpAddWater += helpResult.helpResult.salveHelpAddWater;
-          console.log(`【助力好友结果】: 已成功给【${helpResult.helpResult.masterUserInfo.nickName}】助力`);
-          console.log(`给好友【${helpResult.helpResult.masterUserInfo.nickName}】助力获得${helpResult.helpResult.salveHelpAddWater}g水滴`)
-          helpSuccessPeoples += helpResult.helpResult.masterUserInfo.nickName + '，';
-        } else if (helpResult.helpResult.code === '8') {
-          console.log(`【助力好友结果】: 助力【${helpResult.helpResult.masterUserInfo.nickName}】失败，您今天助力次数已耗尽`);
-        } else if (helpResult.helpResult.code === '9') {
-          console.log(`【助力好友结果】: 之前给【${helpResult.helpResult.masterUserInfo.nickName}】助力过了`);
-        } else if (helpResult.helpResult.code === '10') {
-          console.log(`【助力好友结果】: 好友【${helpResult.helpResult.masterUserInfo.nickName}】已满五人助力`);
-        }
-        console.log(`【今日助力次数还剩】${helpResult.helpResult.remainTimes}次`);
-        remainTimes = helpResult.helpResult.remainTimes;
-        if (helpResult.helpResult.remainTimes === 0) {
-          console.log(`您当前助力次数已耗尽，跳出助力`);
-          break
-        }
-      }
-    }
-    let helpSuccessPeoplesKey = timeFormat() + farmInfo.farmUserPro.shareCode;
-    if (!$.getdata(helpSuccessPeoplesKey)) {
-      //把前一天的清除
-      $.setdata('', timeFormat(Date.now() - 24 * 60 * 60 * 1000) + farmInfo.farmUserPro.shareCode);
-      $.setdata('', helpSuccessPeoplesKey);
-    }
-    if (helpSuccessPeoples) {
-      if ($.getdata(helpSuccessPeoplesKey)) {
-        $.setdata($.getdata(helpSuccessPeoplesKey) + helpSuccessPeoples, helpSuccessPeoplesKey);
-      } else {
-        $.setdata(helpSuccessPeoples, helpSuccessPeoplesKey);
-      }
-    }
-
-    helpSuccessPeoples = $.getdata(helpSuccessPeoplesKey);
-    if (helpSuccessPeoples && helpSuccessPeoples.length > 0) {
-      message += `【您助力的好友👬】${helpSuccessPeoples.substr(0, helpSuccessPeoples.length - 1)}\n`;
-    }
-    if (salveHelpAddWater > 0) {
-      message += `【助力好友👬】获得${salveHelpAddWater}g💧\n`
-    }
-    message += `【今日剩余助力👬】${remainTimes}次\n`;
-    console.log('助力好友结束，即将开始每日浇水任务');
-    // console.log('当前水滴剩余: ' + farmInfo.farmUserPro.totalEnergy);
-    // farmTask = yield taskInitForFarm();
-
-    //浇水10次
-    if (farmTask.totalWaterTaskInit.totalWaterTaskTimes < farmTask.totalWaterTaskInit.totalWaterTaskLimit) {
-      let waterCount = 0;
-      isFruitFinished = false;
-      for (; waterCount < farmTask.totalWaterTaskInit.totalWaterTaskLimit - farmTask.totalWaterTaskInit.totalWaterTaskTimes; waterCount++) {
-        console.log(`第${waterCount + 1}次浇水`);
-        let waterResult = yield waterGoodForFarm();
-        console.log(`本次浇水结果:   ${JSON.stringify(waterResult)}`);
-        if (waterResult.code === '0') {
-          console.log(`剩余水滴${waterResult.totalEnergy}g`);
-          if (waterResult.totalEnergy < 10) {
-            console.log(`水滴不够，结束浇水`)
-            break
-          }
-        } else {
-          if (waterResult.code === '6' && waterResult.finished) {
-            // 已证实，waterResult.finished为true，表示水果可以去领取兑换了
-            isFruitFinished = true;
-            break
-          }
-          break;
-        }
-      }
-      if (isFruitFinished) {
-        option['open-url'] = "openApp.jdMobile://";
-        $.msg(name, `【提醒⏰】${farmInfo.farmUserPro.name}已可领取`, '请去京东APP或微信小程序查看', option);
-        $.done();
-        return;
-      }
-      farmTask = yield taskInitForFarm();
-      // message += `【自动浇水】浇水${waterCount}次，今日浇水${farmTask.totalWaterTaskInit.totalWaterTaskTimes}次\n`
-    } else {
-      console.log('今日已完成10次浇水任务');
-    }
-    //领取首次浇水奖励
-    if (!farmTask.firstWaterInit.f && farmTask.firstWaterInit.totalWaterTimes > 0) {
-      let firstWaterReward = yield firstWaterTaskForFarm();
-      if (firstWaterReward.code === '0') {
-        message += `【首次浇水奖励】获得${firstWaterReward.amount}g💧\n`
-      } else {
-        message += '【首次浇水奖励】领取奖励失败,详询日志\n'
-        console.log(`领取首次浇水奖励结果:  ${JSON.stringify(firstWaterReward)}`);
-      }
-    }
-    //领取10次浇水奖励
-    if (!farmTask.totalWaterTaskInit.f && farmTask.totalWaterTaskInit.totalWaterTaskTimes >= farmTask.totalWaterTaskInit.totalWaterTaskLimit) {
-      let totalWaterReward = yield totalWaterTaskForFarm();
-      if (totalWaterReward.code === '0') {
-        // console.log(`领取10次浇水奖励结果:  ${JSON.stringify(totalWaterReward)}`);
-        message += `【十次浇水奖励】获得${totalWaterReward.totalWaterTaskEnergy}g💧\n`//，
-      } else {
-        message += '【十次浇水奖励】领取奖励失败,详询日志\n'
-        console.log(`领取10次浇水奖励结果:  ${JSON.stringify(totalWaterReward)}`);
-      }
-    } else if (farmTask.totalWaterTaskInit.totalWaterTaskTimes < farmTask.totalWaterTaskInit.totalWaterTaskLimit) {
-      message += `【十次浇水奖励】任务未完成，今日浇水${farmTask.totalWaterTaskInit.totalWaterTaskTimes}次\n`
-    }
-    console.log('finished 水果任务完成!');
-
-    farmInfo = yield initForFarm();
-    // 所有的浇水(10次浇水)任务，获取水滴任务完成后，如果剩余水滴大于等于60g,则继续浇水(保留部分水滴是用于完成第二天的浇水10次的任务)
-    const retainWater = 50;//保留水滴大于50g;
-    let overageEnergy = farmInfo.farmUserPro.totalEnergy - retainWater;
-    if (farmInfo.farmUserPro.totalEnergy >= (farmInfo.farmUserPro.treeTotalEnergy - farmInfo.farmUserPro.treeEnergy)) {
-      //如果现有的水滴，大于水果可兑换所需的对滴(也就是把水滴浇完，水果就能兑换了)
-      isFruitFinished = false;
-      for (let i = 0; i < (farmInfo.farmUserPro.treeTotalEnergy - farmInfo.farmUserPro.treeEnergy) / 10; i++) {
-        let resp = yield waterGoodForFarm();
-        console.log(`本次浇水结果:   ${JSON.stringify(waterResult)}`);
-        if (resp.code === '0') {
-          console.log('\n浇水10g成功\n');
-          console.log(`目前水滴【${resp.totalEnergy}】g,继续浇水，水果马上就可以兑换了`)
-        } else {
-          if (resp.code === '6' && resp.finished) {
-            // 已证实，waterResult.finished为true，表示水果可以去领取兑换了
-            isFruitFinished = true;
-            break
-          }
-          break;
-        }
-      }
-      if (isFruitFinished) {
-        option['open-url'] = "openApp.jdMobile://";
-        $.msg(name, `【提醒⏰】${farmInfo.farmUserPro.name}已可领取`, '请去京东APP或微信小程序查看', option);
-        $.done();
-        return;
-      }
-    } else if (overageEnergy >= 10) {
-      console.log("目前剩余水滴：【" + farmInfo.farmUserPro.totalEnergy + "】g，可继续浇水");
-      isFruitFinished = false;
-      for (let i = 0; i < parseInt(overageEnergy / 10); i++) {
-        let res = yield waterGoodForFarm();
-        if (res.code === '0') {
-          console.log('\n浇水10g成功\n')
-          if (res.totalEnergy < (retainWater + 10)) {
-            console.log(`目前水滴【${res.totalEnergy}】g，不再继续浇水`)
-          } else {
-            console.log(`目前剩余水滴：【${res.totalEnergy}】g，可继续浇水`);
-          }
-        } else {
-          if (res.code === '6' && res.finished) {
-            // 已证实，waterResult.finished为true，表示水果可以去领取兑换了
-            isFruitFinished = true;
-            break
-          }
-          break;
-        }
-      }
-      if (isFruitFinished) {
-        option['open-url'] = "openApp.jdMobile://";
-        $.msg(name, `【提醒⏰】${farmInfo.farmUserPro.name}已可领取`, '请去京东APP或微信小程序查看', option);
-        $.done();
-        return;
-      }
-    } else {
-      console.log("目前剩余水滴：【" + farmInfo.farmUserPro.totalEnergy + "】g,不再继续浇水,保留部分水滴用于完成第二天【十次浇水得水滴】任务")
-    }
-
-    farmInfo = yield initForFarm();
-    message += `【水果🍉进度】${((farmInfo.farmUserPro.treeEnergy / farmInfo.farmUserPro.treeTotalEnergy) * 100).toFixed(2)}%，已浇水${farmInfo.farmUserPro.treeEnergy / 10}次,还需${(farmInfo.farmUserPro.treeTotalEnergy - farmInfo.farmUserPro.treeEnergy) / 10}次\n`
-    if (farmInfo.toFlowTimes > (farmInfo.farmUserPro.treeEnergy / 10)) {
-      message += `【开花进度】再浇水${farmInfo.toFlowTimes - farmInfo.farmUserPro.treeEnergy / 10}次开花\n`
-    } else if (farmInfo.toFruitTimes > (farmInfo.farmUserPro.treeEnergy / 10)) {
-      message += `【结果进度】再浇水${farmInfo.toFruitTimes - farmInfo.farmUserPro.treeEnergy / 10}次结果\n`
-    }
-    // 预测n天后水果课可兑换功能
-    let waterTotalT = (farmInfo.farmUserPro.treeTotalEnergy - farmInfo.farmUserPro.treeEnergy - farmInfo.farmUserPro.totalEnergy) / 10;//一共还需浇多少次水
-    farmTask = yield taskInitForFarm();
-    let waterEveryDayT = farmTask.totalWaterTaskInit.totalWaterTaskTimes;//今天到到目前为止，浇了多少次水
-    message += `【今日共浇水】${waterEveryDayT}次\n`;
-    let waterD = Math.ceil(waterTotalT / waterEveryDayT);
-    // name += `——预测在${timeFormat(24 * 60 * 60 * 1000 * waterD + Date.now())}日可兑换🍉`;
-    // if (waterEveryDayT !== 0) {
-    //   subTitle += `，预计需${waterD}天可兑换`
-    // } else {
-    //   subTitle += `，预计需${Math.ceil(waterTotalT / 10)}天可兑换`
-    // }
-    message += `【剩余水滴】${farmInfo.farmUserPro.totalEnergy}g💧\n`;
-    message += `【预测】${waterD === 1 ? '明天' : waterD === 2 ? '后天' : waterD + '天之后'}(${timeFormat(24 * 60 * 60 * 1000 * waterD + Date.now())}日)可兑换水果🍉`
-//        //集卡抽奖活动
-//        console.log('开始集卡活动')
-//
-//        //初始化集卡抽奖活动数据
-//        let turntableFarm = yield initForTurntableFarm()
-//        if (turntableFarm.code == 0) {
-//            //浏览爆品任务
-//            if (!turntableFarm.turntableBrowserAdsStatus) {
-//                let browserResult1 = yield browserForTurntableFarm(1);
-//                console.log(`浏览爆品任务结果${JSON.stringify(browserResult1)}`)
-//                if (browserResult1.code == 0) {
-//                    let browserResult2 = yield browserForTurntableFarm(2);
-//                    console.log(`领取爆品任务奖励结果${JSON.stringify(browserResult2)}`)
-//                }
-//            }
-//            //领取定时奖励 //4小时一次 没判断时间
-//            if (!turntableFarm.timingGotStatus) {
-//                let timingAward = yield timingAwardForTurntableFarm();
-//                console.log(`领取定时奖励结果${JSON.stringify(timingAward)}`)
-//            }
-//            turntableFarm = yield initForTurntableFarm()
-//            console.log('开始抽奖')
-//            //抽奖
-//            if (turntableFarm.remainLotteryTimes > 0) {
-//                let lotteryResult = "【集卡抽奖】获得"
-//                for (let i = 0; i < turntableFarm.remainLotteryTimes; i++) {
-//                    let lottery = yield lotteryForTurntableFarm()
-//                    console.log(`第${i + 1}次抽奖结果${JSON.stringify(lottery)}`)
-//
-//                    if (lottery.code == 0) {
-//                        if (lottery.type == "water") {
-//                            lotteryResult += `水滴${lottery.addWater}g `
-//                        } else if (lottery.type == "pingguo") {
-//                            lotteryResult += "苹果卡 "
-//                        } else if (lottery.type == "baixiangguo") {
-//                            lotteryResult += "百香果卡 "
-//                        } else if (lottery.type == "mangguo") {
-//                            lotteryResult += "芒果卡 "
-//                        } else if (lottery.type == "taozi") {
-//                            lotteryResult += "桃子卡 "
-//                        } else if (lottery.type == "mihoutao") {
-//                            lotteryResult += "猕猴桃卡 "
-//                        } else if (lottery.type == "pingguo") {
-//                            lotteryResult += "苹果卡 "
-//                        } else if (lottery.type == "coupon") {
-//                            lotteryResult += "优惠券 "
-//                        } else if (lottery.type == "coupon3") {
-//                            lotteryResult += "8斤金枕榴莲 "
-//                        } else if (lottery.type == "bean") {
-//                            lotteryResult += `京豆${lottery.beanCount}个 `
-//                        } else if (lottery.type == "hongbao1") {
-//                            lotteryResult += `${lottery.hongBao.balance}元无门槛红包 `
-//                        } else {
-//                            lotteryResult += `未知奖品${lottery.type} `
-//                        }
-//                        //没有次数了
-//                        if (lottery.remainLotteryTimes == 0) {
-//                            break
-//                        }
-//                    }
-//
-//                }
-//                message += lotteryResult
-//            }
-//            console.log('抽奖结束')
-//
-//        } else {
-//            console.log(`初始化集卡抽奖活动数据异常, 数据: ${JSON.stringify(farmInfo)}`);
-//            message += '【集卡抽奖】初始化集卡抽奖数据异常'
-//        }
-//        console.log('集卡活动抽奖结束')
-
-    console.log('全部任务结束');
-  } else {
-    if (farmInfo.code === '3') {
-      $.msg(name, '【提示】京东cookie已失效,请重新登录获取', 'https://bean.m.jd.com/', {"open-url": "https://bean.m.jd.com/"});
-      $.setdata('', 'CookieJD');//cookie失效，故清空cookie。
+let gen = entrance();
+gen.next();
+/**
+ * 入口函数
+ */
+function* entrance() {
+    if (!cookie) {
+      $.msg(name, '【提示】请先获取cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
       $.done();
       return
-    } else {
-      console.log(`初始化农场数据异常, 请登录京东 app查看农场0元水果功能是否正常,农场初始化数据: ${JSON.stringify(farmInfo)}`);
-      message = '初始化农场数据异常, 请登录京东 app查看农场0元水果功能是否正常'
     }
-  }
-  if (!jdNotify || jdNotify === 'false') {
-    $.msg();
-  }
-  $.done();
+    console.log('任务开始');
+    yield initPetTown(); //初始化萌宠
+    yield taskInit(); // 初始化任务
+
+    yield petSport(); // 遛弯
+    yield slaveHelp();  // 助力, 在顶部shareCodes中填写需要助力的shareCode
+    yield masterHelpInit();//获取助力信息
+    taskInfo['taskList'].forEach((val) => {
+      taskInfoKey.push(val);
+    })
+    // 任务开始
+    for (let task_name in function_map) {
+        if (taskInfoKey.indexOf(task_name) !== -1) {
+          taskInfoKey.splice(taskInfoKey.indexOf(task_name), 1);
+        }
+        if (taskInfo[task_name] && !taskInfo[task_name].finished) {
+            console.log('任务' + task_name + '开始');
+            // yield eval(task_name + '()');
+            yield function_map[task_name]();
+        } else {
+            console.log('任务' + task_name + '已完成');
+        }
+    }
+    for (let item of taskInfoKey) {
+      console.log(`新任务 【${taskInfo[item].title}】 功能未开发，请反馈给脚本维护者@lxk0301\n`);
+      $.msg($.name, subTitle, `新的任务 【${taskInfo[item].title}】 功能未开发，请反馈给脚本维护者@lxk0301\n`, {"open-url": "https://t.me/JD_fruit_pet"})
+    }
+    yield feedPetsAgain();//所有任务做完后，检测剩余狗粮是否大于110g,大于就继续投食
+    yield energyCollect();
+    let option = {
+      "media-url" : goodsUrl
+    }
+
+    if (!jdNotify || jdNotify === 'false') {
+      $.msg();
+    }
+    // $notify(name, subTitle, message);
+    console.log('全部任务完成, 如果帮助到您可以点下🌟STAR鼓励我一下, 明天见~');
+    $.done();
+}
+
+
+// 收取所有好感度
+function energyCollect() {
+    console.log('开始收取任务奖励好感度');
+
+    let function_id = arguments.callee.name.toString();
+    request(function_id).then(response => {
+        console.log(`收取任务奖励好感度完成:${JSON.stringify(response)}`);
+        if (response.code === '0') {
+            // message += `【第${petInfo.medalNum + 2}块勋章完成进度】：${response.result.medalPercent}%，还需投食${response.result.needCollectEnergy}g狗粮\n`;
+            // message += `【已获得勋章】${petInfo.medalNum + 1}块，还需收集${petInfo.goodsInfo.exchangeMedalNum - petInfo.medalNum - 1}块即可兑换奖品“${petInfo.goodsInfo.goodsName}”\n`;
+          message += `【第${response.result.medalNum + 1}块勋章完成进度】${response.result.medalPercent}%，还需投食${response.result.needCollectEnergy}g\n`;
+          message += `【已获得勋章】${response.result.medalNum}块，还需收集${response.result.needCollectMedalNum}块即可兑换奖品“${petInfo.goodsInfo.goodsName}”\n`;
+        }
+        gen.next();
+    })
+}
+
+// 首次投食 任务
+function firstFeedInit() {
+    console.log('首次投食任务合并到10次喂食任务中');
+    setTimeout(() => {
+        gen.next();
+    }, 2000);
 }
 
 /**
- * 集卡抽奖
+ * 投食10次 任务
  */
-function lotteryForTurntableFarm() {
-  request(arguments.callee.name.toString(), {type: 1, version: 4, channel: 1});
+async function feedReachInit() {
+    console.log('投食任务开始...');
+
+    // let foodAmount = petInfo.foodAmount; //剩余狗粮
+    let finishedTimes = taskInfo.feedReachInit.hadFeedAmount / 10; //已经喂养了几次
+    let needFeedTimes = 10 - finishedTimes; //还需要几次
+    // let canFeedTimes = foodAmount / 10;
+    // if (canFeedTimes < needFeedTimes) {
+        // if (confirm('当前剩余狗粮' + foodAmount + 'g, 已不足投食' + needFeedTimes + '次, 确定要继续吗?') === false) {
+        // 	console.log('你拒绝了执行喂养十次任务');
+        // 	gen.next();
+        // }
+    // }
+
+    let tryTimes = 20; //尝试次数
+    do {
+        console.log(`还需要投食${needFeedTimes}次`);
+        let response = await feedPets();
+        console.log(`本次投食结果: ${JSON.stringify(response)}`);
+        if (response.resultCode == 0 && response.code == 0) {
+            needFeedTimes--;
+        }
+        if (response.resultCode == 3003 && response.code == 0) {
+            console.log('剩余狗粮不足, 投食结束');
+            needFeedTimes = 0;
+        }
+
+        tryTimes--;
+    } while (needFeedTimes > 0 && tryTimes > 0)
+
+    console.log('投食任务结束...');
+    gen.next();
+
 }
 
-function timingAwardForTurntableFarm() {
-  request(arguments.callee.name.toString(), {version: 4, channel: 1});
-}
+// 遛狗, 每天次数上限10次, 随机给狗粮, 每次遛狗结束需调用getSportReward领取奖励, 才能进行下一次遛狗
+async function petSport() {
+    console.log('开始遛弯');
 
-// 初始化集卡抽奖活动数据
-function initForTurntableFarm() {
-  request(arguments.callee.name.toString(), {version: 4, channel: 1});
-}
+    var times = 1;
+    var code = 0;
+    var resultCode = 0;
 
-function browserForTurntableFarm(type) {
-  if (type === 1) {
-    console.log('浏览爆品会场');
-  }
-  if (type === 2) {
-    console.log('领取浏览爆品会场奖励');
-  }
+    do {
+        let response = await request(arguments.callee.name.toString())
+        console.log(`第${times}次遛狗完成: ${JSON.stringify(response)}`);
+        resultCode = response.resultCode;
 
-  request(arguments.callee.name.toString(), {type: type});
-  // 浏览爆品会场8秒
-}
+        if (resultCode == 0) {
+            let sportRevardResult = await getSportReward();
+            console.log(`领取遛狗奖励完成: ${JSON.stringify(sportRevardResult)}`);
+        }
 
+        times++;
+    } while (resultCode == 0 && code == 0)
+    if (times > 1) {
+        message += '【十次遛狗】已完成\n';
+    }
+    gen.next();
 
-/**
- * 被水滴砸中
- * 要弹出来窗口后调用才有效, 暂时不知道如何控制
- */
-function gotWaterGoalTaskForFarm() {
-  request(arguments.callee.name.toString(), {type: 3});
-}
-
-//助力好友信息
-function masterHelpTaskInitForFarm() {
-  let functionId = arguments.callee.name.toString();
-  request(functionId);
-}
-
-//领取5人助力后的额外奖励
-function masterGotFinishedTaskForFarm() {
-  console.log("领取助力完成后的水滴")
-  let functionId = arguments.callee.name.toString();
-  request(functionId);
-}
-
-function masterHelp() {
-  request(`initForFarm`, {
-    imageUrl: "",
-    nickName: "",
-    shareCode: arguments[0],
-    babelChannel: "3",
-    version: 2,
-    channel: 1
-  });
-}
-
-/**
- * 10次浇水
- */
-function totalWaterTaskForFarm() {
-  let functionId = arguments.callee.name.toString();
-  request(functionId);
-}
-
-function firstWaterTaskForFarm() {
-  let functionId = arguments.callee.name.toString();
-  request(functionId);
-}
-
-// 浇水动作
-function waterGoodForFarm() {
-  let functionId = arguments.callee.name.toString();
-  request(functionId);
 }
 
 /**
- * 浏览广告任务
- * type为0时, 完成浏览任务
- * type为1时, 领取浏览任务奖励
+ * 助力好友, 暂时支持一个好友, 需要拿到shareCode
+ * shareCode为你要助力的好友的
+ * 运行脚本时你自己的shareCode会在控制台输出, 可以将其分享给他人
  */
-function browseAdTaskForFarm(advertId, type) {
-  let functionId = arguments.callee.name.toString();
-  request(functionId, {advertId, type});
+async function slaveHelp() {
+    let functionId = arguments.callee.name.toString();
+    let helpPeoples = '';
+    for (let code of shareCodes) {
+        console.log(`开始助力好友: ${code}`);
+        let response = await request(functionId, {
+            shareCode: code
+        });
+        if (response.code === '0' && response.resultCode === '0') {
+            if (response.result.helpStatus === 0) {
+              console.log('已给好友: 【' + response.result.masterNickName + '】助力');
+              helpPeoples += response.result.masterNickName + '，';
+            } else if (response.result.helpStatus === 1) {
+              // 您今日已无助力机会
+              console.log(`助力好友${response.result.masterNickName}失败，您今日已无助力机会`);
+              break;
+            } else if (response.result.helpStatus === 2) {
+              //该好友已满5人助力，无需您再次助力
+              console.log(`该好友${response.result.masterNickName}已满5人助力，无需您再次助力`);
+            }
+        } else {
+            console.log(`助理好友结果: ${response.message}`);
+        }
+    }
+    if (helpPeoples && helpPeoples.length > 0) {
+        message += `【您助力的好友】${helpPeoples.substr(0, helpPeoples.length - 1)}\n`;
+    }
+
+    gen.next();
 }
 
-//签到
-function signForFarm() {
-  let functionId = arguments.callee.name.toString();
-  request(functionId);
+
+// 领取遛狗奖励
+function getSportReward() {
+    return new Promise((rs, rj) => {
+        request(arguments.callee.name.toString()).then(response => {
+            rs(response);
+        })
+    })
 }
 
-//定时领水
-function gotThreeMealForFarm() {
-  let functionId = arguments.callee.name.toString();
-  request(functionId);
+// 浏览店铺任务, 任务可能为多个? 目前只有一个
+async function browseShopsInit() {
+    console.log('开始浏览店铺任务');
+    let times = 0;
+    let resultCode = 0;
+    let code = 0;
+
+    do {
+        let response = await request("getBrowseShopsReward");
+        console.log(`第${times}次浏览店铺结果: ${JSON.stringify(response)}`);
+        code = response.code;
+        resultCode = response.resultCode;
+        times++;
+    } while (resultCode == 0 && code == 0 && times < 5)
+
+    console.log('浏览店铺任务结束');
+    gen.next();
 }
 
-// 初始化任务列表
-function taskInitForFarm() {
-  let functionId = arguments.callee.name.toString();
-  request(functionId);
+// 浏览指定店铺 任务
+function browseSingleShopInit() {
+    console.log('准备浏览指定店铺');
+    const body = {"index":0,"version":1,"type":1};
+    request("getSingleShopReward", body).then(response => {
+      console.log(`response::${JSON.stringify(response)}`);
+        if (response.code === '0' && response.resultCode === '0') {
+            const body2 = {"index":0,"version":1,"type":2};
+            request("getSingleShopReward", body2).then(response2 => {
+              console.log(`response2::${JSON.stringify(response)}`);
+                if (response2.code === '0' && response2.resultCode === '0') {
+                    message += `【浏览指定店铺】获取${response2.result.reward}g\n`;
+                }
+                gen.next();
+            })
+        }
+    })
 }
-
-/**
- * 初始化农场, 可获取果树及用户信息
- */
-function initForFarm() {
-  let functionId = arguments.callee.name.toString();
-  request(functionId);
-}
-
-/**
- * 水滴雨
- * @param function_id
- * @param body
- */
-function waterRainForFarm() {
-  let functionId = arguments.callee.name.toString();
-  let body = {"type": 1, "hongBaoTimes": 100, "version": 3};
-  request(functionId, body);
-}
-
-/**
- * 打卡领水
- */
-function clockInInitForFarm() {
-  let functionId = arguments.callee.name.toString();
-  request(functionId);
-}
-
-// 连续签到
-function clockInForFarm() {
-  let functionId = arguments.callee.name.toString();
-  request(functionId, {"type": 1});
-}
-
-//关注，领券等
-function clockInFollowForFarm(id, type, step) {
-  let functionId = arguments.callee.name.toString();
-  let body = {
-    id,
-    type,
-    step
-  }
-  request(functionId, body);
-}
-
-// 领取连续签到7天的惊喜礼包
-function gotClockInGift() {
-  request('clockInForFarm', {"type": 2})
-}
-
-function request(function_id, body = {}) {
-  $.get(taskurl(function_id, body), (err, resp, data) => {
-    if (err) {
-      console.log("=== request error -s--");
-      console.log("=== request error -e--");
-    } else {
-      try {
-        data = JSON.parse(data);
-      } catch (e) {
-        console.log(e);
-      } finally {
-        sleep(data);
-      }
+// 临时新增任务--冰淇淋会场
+function browseSingleShopInit2() {
+  console.log('准备浏览指定店铺--冰淇淋会场');
+  const body = {"index":1,"version":1,"type":1};
+  const body2 = {"index":1,"version":1,"type":2}
+  request("getSingleShopReward", body).then(response => {
+    console.log(`①点击浏览指定店铺结果: ${JSON.stringify(response)}`);
+    if (response.code === '0' && response.resultCode === '0') {
+      request("getSingleShopReward", body2).then(response2 => {
+        console.log(`②浏览指定店铺结果: ${JSON.stringify(response2)}`);
+        if (response2.code === '0' && response2.resultCode === '0') {
+          message += `【冰淇淋会场】获取狗粮${response2.result.reward}g\n`;
+        }
+        gen.next();
+      })
     }
   })
 }
+function browseSingleShopInit3() {
+  console.log('准备完成 去参与星品解锁计划');
+  const body = {"index":2,"version":1,"type":1};
+  const body2 = {"index":2,"version":1,"type":2}
+  request("getSingleShopReward", body).then(response => {
+    console.log(`①点击浏览指定店铺结果: ${JSON.stringify(response)}`);
+    if (response.code === '0' && response.resultCode === '0') {
+      request("getSingleShopReward", body2).then(response2 => {
+        console.log(`②浏览指定店铺结果: ${JSON.stringify(response2)}`);
+        if (response2.code === '0' && response2.resultCode === '0') {
+          message += `【去参与星品解锁计划】获取狗粮${response2.result.reward}g\n`;
+        }
+        gen.next();
+      })
+    }
+  })
+}
+// 三餐签到, 每天三段签到时间
+function threeMealInit() {
+    console.log('准备三餐签到');
+    request("getThreeMealReward").then(response => {
+        console.log(`三餐签到结果: ${JSON.stringify(response)}`);
+        if (response.code === '0' && response.resultCode === '0') {
+            message += `【定时领狗粮】获得${response.result.threeMealReward}g\n`;
+        } else {
+            message += `【定时领狗粮】${response.message}\n`;
+        }
+      gen.next();
+    })
+}
 
-function sleep(response) {
-  console.log('休息一下');
-  setTimeout(() => {
-    console.log('休息结束');
-    Task.next(response)
-  }, 1000);
+// 每日签到, 每天一次
+function signInit() {
+    console.log('准备每日签到');
+    request("getSignReward").then(response => {
+        console.log(`每日签到结果: ${JSON.stringify(response)}`);
+        message += `【每日签到成功】奖励${response.result.signReward}g狗粮\n`;
+        gen.next();
+    })
+
+}
+
+// 投食
+function feedPets() {
+    console.log('开始投食');
+    return new Promise((rs, rj) => {
+        request(arguments.callee.name.toString()).then(response => {
+            rs(response);
+        })
+    })
+}
+
+//查询jd宠物信息
+function initPetTown() {
+    request(arguments.callee.name.toString()).then((response) => {
+        // console.log(`初始化萌宠信息${JSON.stringify(response)}`)
+        if (response.code === '0' && response.resultCode === '0' && response.message === 'success') {
+            petInfo = response.result;
+            if (petInfo.userStatus === 0) {
+              $.msg(name, '【提示】此账号萌宠活动未开始，请手动去京东APP开启活动\n入口：我的->游戏与互动->查看更多', '', { "open-url": "openapp.jdmoble://" });
+              $.done();
+              return
+            }
+            goodsUrl = response.result.goodsInfo && response.result.goodsInfo.goodsUrl;
+            // console.log(`初始化萌宠信息完成: ${JSON.stringify(petInfo)}`);
+            console.log(`\n【您的互助码shareCode】 ${petInfo.shareCode}\n`);
+          gen.next();
+        } else if (response.code === '0' && response.resultCode === '2001'){
+            console.log(`初始化萌宠失败:  ${response.message}`);
+            $.setdata('', 'CookieJD');//cookie失效，故清空cookie。
+            $.msg(name, '【提示】京东cookie已失效,请重新登录获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
+            $.done();
+        }
+    })
+
+}
+//再次投食
+async function feedPetsAgain() {
+  const response = await secondInitPetTown(); //再次初始化萌宠
+  if (response.code === '0' && response.resultCode === '0' && response.message === 'success') {
+    let secondPetInfo = response.result;
+    let foodAmount = secondPetInfo.foodAmount; //剩余狗粮
+    if (foodAmount - 100 >= 10) {
+      for (let i = 0; i < parseInt((foodAmount - 100) / 10); i++) {
+        const feedPetRes = await feedPets();
+        console.log(`投食feedPetRes`);
+        if (feedPetRes.resultCode == 0 && feedPetRes.code == 0) {
+          console.log('投食成功')
+        }
+      }
+      const response2 = await secondInitPetTown();
+      subTitle = response2.result.goodsInfo.goodsName;
+      message += `【与爱宠相识】${response2.result.meetDays}天\n`;
+      message += `【剩余狗粮】${response2.result.foodAmount}g\n`;
+    } else {
+      console.log("目前剩余狗粮：【" + foodAmount + "】g,不再继续投食,保留100g用于完成第二天任务");
+      subTitle = secondPetInfo.goodsInfo.goodsName;
+      message += `【与爱宠相识】${secondPetInfo.meetDays}天\n`;
+      message += `【剩余狗粮】${secondPetInfo.foodAmount}g\n`;
+    }
+  } else {
+    console.log(`初始化萌宠失败:  ${JSON.stringify(petInfo)}`);
+  }
+  gen.next();
+}
+// 再次查询萌宠信息
+function secondInitPetTown() {
+  console.log('开始再次初始化萌宠信息');
+  return new Promise((rs, rj) => {
+    request("initPetTown").then(response => {
+      rs(response);
+    })
+  })
+}
+// 邀请新用户
+function inviteFriendsInit() {
+    console.log('邀请新用户功能未实现');
+    if (taskInfo.inviteFriendsInit.status == 1 && taskInfo.inviteFriendsInit.inviteFriendsNum > 0) {
+      // 如果有邀请过新用户,自动领取60gg奖励
+      request('getInviteFriendsReward').then((res) => {
+        try {
+          if (res.code == 0 && res.resultCode == 0) {
+            console.log(`领取邀请新用户奖励成功,获得狗粮现有狗粮${taskInfo.inviteFriendsInit.reward}g，${res.result.foodAmount}g`);
+            message += `【邀请新用户】获取${taskInfo.inviteFriendsInit.reward}g\n`;
+          }
+          gen.next();
+        } catch (e) {
+          console.log('领取邀请新用户奖励失败')
+        }
+      });
+    } else {
+      setTimeout(() => {
+        gen.next();
+      }, 2000);
+    }
+}
+
+// 好友助力信息
+async function masterHelpInit() {
+  let res = await request(arguments.callee.name.toString());
+  console.log('助力信息: ' , res);
+  if (res.code === '0' && res.resultCode === '0') {
+    if (res.result.masterHelpPeoples && res.result.masterHelpPeoples.length >= 5) {
+      if(!res.result.addedBonusFlag) {
+        console.log("开始领取额外奖励");
+        let getHelpAddedBonusResult = await getHelpAddedBonus();
+        console.log(`领取30g额外奖励结果：【${getHelpAddedBonusResult.message}】`);
+        message += `【额外奖励${getHelpAddedBonusResult.result.reward}领取】${getHelpAddedBonusResult.message}\n`;
+      } else {
+        console.log("已经领取过5好友助力额外奖励");
+        message += `【额外奖励】已领取\n`;
+      }
+    } else {
+      console.log("助力好友未达到5个")
+      message += `【额外奖励】领取失败，原因：助力好友未达5个\n`;
+    }
+    if (res.result.masterHelpPeoples && res.result.masterHelpPeoples.length > 0) {
+      console.log('帮您助力的好友的名单开始')
+      let str = '';
+      res.result.masterHelpPeoples.map((item, index) => {
+        if (index === (res.result.masterHelpPeoples.length - 1)) {
+          str += item.nickName || "匿名用户";
+        } else {
+          str += (item.nickName || "匿名用户") + '，';
+        }
+      })
+      message += `【助力您的好友】${str}\n`;
+    }
+  }
+  gen.next();
+}
+// 领取5好友助力后的奖励
+function getHelpAddedBonus() {
+  return new Promise((rs, rj)=> {
+    request(arguments.callee.name.toString()).then(response=> {
+      rs(response);
+    })
+  })
+}
+
+// 初始化任务, 可查询任务完成情况
+function taskInit() {
+    console.log('开始任务初始化');
+    const body = {"version":1};
+    request(arguments.callee.name.toString(), body).then(response => {
+        if (response.resultCode === '9999' || !response.result) {
+            console.log('初始化任务异常, 请稍后再试');
+            gen.return();
+        }
+        taskInfo = response.result;
+        // function_map = taskInfo.taskList;
+        console.log(`任务初始化完成: ${JSON.stringify(taskInfo)}`);
+        gen.next();
+    })
+
+}
+
+// 请求
+async function request(function_id, body = {}) {
+    await $.wait(3000); //歇口气儿, 不然会报操作频繁
+    return new Promise((resolve, reject) => {
+        $.get(taskurl(function_id, body), (err, resp, data) => {
+          if (err) {
+            console.log("=== request error -s--");
+            console.log("=== request error -e--");
+          } else {
+            try {
+              data = JSON.parse(data);
+            } catch (e) {
+              console.log(e)
+            } finally {
+              resolve(data)
+            }
+          }
+        })
+    })
 }
 
 function taskurl(function_id, body = {}) {
-  return {
-    url: `${JD_API_HOST}?functionId=${function_id}&appid=wh5&body=${escape(JSON.stringify(body))}`,
-    headers: {
-      Cookie: cookie,
-      UserAgent: `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`,
-    }
-  }
+    return {
+        url: `${JD_API_HOST}?functionId=${function_id}&appid=wh5&loginWQBiz=pet-town&body=${escape(JSON.stringify(body))}`,
+        headers: {
+            Cookie: cookie,
+            UserAgent: `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`,
+        }
+    };
 }
 
-function taskPostUrl(function_id, body = {}) {
-  return {
-    url: JD_API_HOST,
-    body: `functionId=${function_id}&body=${JSON.stringify(body)}&appid=wh5`,
-    headers: {
-      Cookie: cookie,
-    }
-  }
-}
-
-function timeFormat(time) {
-  let date;
-  if (time) {
-    date = new Date(time)
-  } else {
-    date = new Date();
-  }
-  return date.getFullYear() + '-' + ((date.getMonth() + 1) > 10 ? (date.getMonth() + 1) : '0' + (date.getMonth() + 1)) + '-' + (date.getDate() > 10 ? date.getDate() : '0' + date.getDate());
-}
 // prettier-ignore
-function Env(t,s){return new class{constructor(t,s){this.name=t,this.data=null,this.dataFile="box.dat",this.logs=[],this.logSeparator="\n",this.startTime=(new Date).getTime(),Object.assign(this,s),this.log("",`\ud83d\udd14${this.name}, \u5f00\u59cb!`)}isNode(){return"undefined"!=typeof module&&!!module.exports}isQuanX(){return"undefined"!=typeof $task}isSurge(){return"undefined"!=typeof $httpClient}isLoon(){return"undefined"!=typeof $loon}loaddata(){if(!this.isNode())return{};{this.fs=this.fs?this.fs:require("fs"),this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile),s=this.path.resolve(process.cwd(),this.dataFile),e=this.fs.existsSync(t),i=!e&&this.fs.existsSync(s);if(!e&&!i)return{};{const i=e?t:s;try{return JSON.parse(this.fs.readFileSync(i))}catch(t){return{}}}}}writedata(){if(this.isNode()){this.fs=this.fs?this.fs:require("fs"),this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile),s=this.path.resolve(process.cwd(),this.dataFile),e=this.fs.existsSync(t),i=!e&&this.fs.existsSync(s),o=JSON.stringify(this.data);e?this.fs.writeFileSync(t,o):i?this.fs.writeFileSync(s,o):this.fs.writeFileSync(t,o)}}lodash_get(t,s,e){const i=s.replace(/\[(\d+)\]/g,".$1").split(".");let o=t;for(const t of i)if(o=Object(o)[t],void 0===o)return e;return o}lodash_set(t,s,e){return Object(t)!==t?t:(Array.isArray(s)||(s=s.toString().match(/[^.[\]]+/g)||[]),s.slice(0,-1).reduce((t,e,i)=>Object(t[e])===t[e]?t[e]:t[e]=Math.abs(s[i+1])>>0==+s[i+1]?[]:{},t)[s[s.length-1]]=e,t)}getdata(t){let s=this.getval(t);if(/^@/.test(t)){const[,e,i]=/^@(.*?)\.(.*?)$/.exec(t),o=e?this.getval(e):"";if(o)try{const t=JSON.parse(o);s=t?this.lodash_get(t,i,""):s}catch(t){s=""}}return s}setdata(t,s){let e=!1;if(/^@/.test(s)){const[,i,o]=/^@(.*?)\.(.*?)$/.exec(s),h=this.getval(i),a=i?"null"===h?null:h||"{}":"{}";try{const s=JSON.parse(a);this.lodash_set(s,o,t),e=this.setval(JSON.stringify(s),i),console.log(`${i}: ${JSON.stringify(s)}`)}catch(s){const h={};this.lodash_set(h,o,t),e=this.setval(JSON.stringify(h),i),console.log(`${i}: ${JSON.stringify(h)}`)}}else e=$.setval(t,s);return e}getval(t){return this.isSurge()||this.isLoon()?$persistentStore.read(t):this.isQuanX()?$prefs.valueForKey(t):this.isNode()?(this.data=this.loaddata(),this.data[t]):this.data&&this.data[t]||null}setval(t,s){return this.isSurge()||this.isLoon()?$persistentStore.write(t,s):this.isQuanX()?$prefs.setValueForKey(t,s):this.isNode()?(this.data=this.loaddata(),this.data[s]=t,this.writedata(),!0):this.data&&this.data[s]||null}initGotEnv(t){this.got=this.got?this.got:require("got"),this.cktough=this.cktough?this.cktough:require("tough-cookie"),this.ckjar=this.ckjar?this.ckjar:new this.cktough.CookieJar,t&&(t.headers=t.headers?t.headers:{},void 0===t.headers.Cookie&&void 0===t.cookieJar&&(t.cookieJar=this.ckjar))}get(t,s=(()=>{})){t.headers&&(delete t.headers["Content-Type"],delete t.headers["Content-Length"]),this.isSurge()||this.isLoon()?$httpClient.get(t,(t,e,i)=>{!t&&e&&(e.body=i,e.statusCode=e.status,s(t,e,i))}):this.isQuanX()?$task.fetch(t).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t)):this.isNode()&&(this.initGotEnv(t),this.got(t).on("redirect",(t,s)=>{try{const e=t.headers["set-cookie"].map(this.cktough.Cookie.parse).toString();this.ckjar.setCookieSync(e,null),s.cookieJar=this.ckjar}catch(t){this.logErr(t)}}).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t)))}post(t,s=(()=>{})){if(t.body&&t.headers&&!t.headers["Content-Type"]&&(t.headers["Content-Type"]="application/x-www-form-urlencoded"),delete t.headers["Content-Length"],this.isSurge()||this.isLoon())$httpClient.post(t,(t,e,i)=>{!t&&e&&(e.body=i,e.statusCode=e.status),s(t,e,i)});else if(this.isQuanX())t.method="POST",$task.fetch(t).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t));else if(this.isNode()){this.initGotEnv(t);const{url:e,...i}=t;this.got.post(e,i).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t))}}msg(s=t,e="",i="",o){const h=t=>!t||!this.isLoon()&&this.isSurge()?t:"string"==typeof t?this.isLoon()?t:this.isQuanX()?{"open-url":t}:void 0:"object"==typeof t&&(t["open-url"]||t["media-url"])?this.isLoon()?t["open-url"]:this.isQuanX()?t:void 0:void 0;this.isSurge()||this.isLoon()?$notification.post(s,e,i,h(o)):this.isQuanX()&&$notify(s,e,i,h(o)),this.logs.push("","==============\ud83d\udce3\u7cfb\u7edf\u901a\u77e5\ud83d\udce3=============="),this.logs.push(s),e&&this.logs.push(e),i&&this.logs.push(i)}log(...t){t.length>0?this.logs=[...this.logs,...t]:console.log(this.logs.join(this.logSeparator))}logErr(t,s){const e=!this.isSurge()&&!this.isQuanX()&&!this.isLoon();e?$.log("",`\u2757\ufe0f${this.name}, \u9519\u8bef!`,t.stack):$.log("",`\u2757\ufe0f${this.name}, \u9519\u8bef!`,t.message)}wait(t){return new Promise(s=>setTimeout(s,t))}done(t={}){const s=(new Date).getTime(),e=(s-this.startTime)/1e3;this.log("",`\ud83d\udd14${this.name}, \u7ed3\u675f! \ud83d\udd5b ${e} \u79d2`),this.log(),(this.isSurge()||this.isQuanX()||this.isLoon())&&$done(t)}}(t,s)}
+function Env(t,s){return new class{constructor(t,s){this.name=t,this.data=null,this.dataFile="box.dat",this.logs=[],this.logSeparator="\n",this.startTime=(new Date).getTime(),Object.assign(this,s),this.log("",`\ud83d\udd14${this.name}, \u5f00\u59cb!`)}isNode(){return"undefined"!=typeof module&&!!module.exports}isQuanX(){return"undefined"!=typeof $task}isSurge(){return"undefined"!=typeof $httpClient&&"undefined"==typeof $loon}isLoon(){return"undefined"!=typeof $loon}getScript(t){return new Promise(s=>{$.get({url:t},(t,e,i)=>s(i))})}runScript(t,s){return new Promise(e=>{let i=this.getdata("@chavy_boxjs_userCfgs.httpapi");i=i?i.replace(/\n/g,"").trim():i;let o=this.getdata("@chavy_boxjs_userCfgs.httpapi_timeout");o=o?1*o:20,o=s&&s.timeout?s.timeout:o;const[h,a]=i.split("@"),r={url:`http://${a}/v1/scripting/evaluate`,body:{script_text:t,mock_type:"cron",timeout:o},headers:{"X-Key":h,Accept:"*/*"}};$.post(r,(t,s,i)=>e(i))}).catch(t=>this.logErr(t))}loaddata(){if(!this.isNode())return{};{this.fs=this.fs?this.fs:require("fs"),this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile),s=this.path.resolve(process.cwd(),this.dataFile),e=this.fs.existsSync(t),i=!e&&this.fs.existsSync(s);if(!e&&!i)return{};{const i=e?t:s;try{return JSON.parse(this.fs.readFileSync(i))}catch(t){return{}}}}}writedata(){if(this.isNode()){this.fs=this.fs?this.fs:require("fs"),this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile),s=this.path.resolve(process.cwd(),this.dataFile),e=this.fs.existsSync(t),i=!e&&this.fs.existsSync(s),o=JSON.stringify(this.data);e?this.fs.writeFileSync(t,o):i?this.fs.writeFileSync(s,o):this.fs.writeFileSync(t,o)}}lodash_get(t,s,e){const i=s.replace(/\[(\d+)\]/g,".$1").split(".");let o=t;for(const t of i)if(o=Object(o)[t],void 0===o)return e;return o}lodash_set(t,s,e){return Object(t)!==t?t:(Array.isArray(s)||(s=s.toString().match(/[^.[\]]+/g)||[]),s.slice(0,-1).reduce((t,e,i)=>Object(t[e])===t[e]?t[e]:t[e]=Math.abs(s[i+1])>>0==+s[i+1]?[]:{},t)[s[s.length-1]]=e,t)}getdata(t){let s=this.getval(t);if(/^@/.test(t)){const[,e,i]=/^@(.*?)\.(.*?)$/.exec(t),o=e?this.getval(e):"";if(o)try{const t=JSON.parse(o);s=t?this.lodash_get(t,i,""):s}catch(t){s=""}}return s}setdata(t,s){let e=!1;if(/^@/.test(s)){const[,i,o]=/^@(.*?)\.(.*?)$/.exec(s),h=this.getval(i),a=i?"null"===h?null:h||"{}":"{}";try{const s=JSON.parse(a);this.lodash_set(s,o,t),e=this.setval(JSON.stringify(s),i)}catch(s){const h={};this.lodash_set(h,o,t),e=this.setval(JSON.stringify(h),i)}}else e=$.setval(t,s);return e}getval(t){return this.isSurge()||this.isLoon()?$persistentStore.read(t):this.isQuanX()?$prefs.valueForKey(t):this.isNode()?(this.data=this.loaddata(),this.data[t]):this.data&&this.data[t]||null}setval(t,s){return this.isSurge()||this.isLoon()?$persistentStore.write(t,s):this.isQuanX()?$prefs.setValueForKey(t,s):this.isNode()?(this.data=this.loaddata(),this.data[s]=t,this.writedata(),!0):this.data&&this.data[s]||null}initGotEnv(t){this.got=this.got?this.got:require("got"),this.cktough=this.cktough?this.cktough:require("tough-cookie"),this.ckjar=this.ckjar?this.ckjar:new this.cktough.CookieJar,t&&(t.headers=t.headers?t.headers:{},void 0===t.headers.Cookie&&void 0===t.cookieJar&&(t.cookieJar=this.ckjar))}get(t,s=(()=>{})){t.headers&&(delete t.headers["Content-Type"],delete t.headers["Content-Length"]),this.isSurge()||this.isLoon()?$httpClient.get(t,(t,e,i)=>{!t&&e&&(e.body=i,e.statusCode=e.status),s(t,e,i)}):this.isQuanX()?$task.fetch(t).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t)):this.isNode()&&(this.initGotEnv(t),this.got(t).on("redirect",(t,s)=>{try{const e=t.headers["set-cookie"].map(this.cktough.Cookie.parse).toString();this.ckjar.setCookieSync(e,null),s.cookieJar=this.ckjar}catch(t){this.logErr(t)}}).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t)))}post(t,s=(()=>{})){if(t.body&&t.headers&&!t.headers["Content-Type"]&&(t.headers["Content-Type"]="application/x-www-form-urlencoded"),delete t.headers["Content-Length"],this.isSurge()||this.isLoon())$httpClient.post(t,(t,e,i)=>{!t&&e&&(e.body=i,e.statusCode=e.status),s(t,e,i)});else if(this.isQuanX())t.method="POST",$task.fetch(t).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t));else if(this.isNode()){this.initGotEnv(t);const{url:e,...i}=t;this.got.post(e,i).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t))}}time(t){let s={"M+":(new Date).getMonth()+1,"d+":(new Date).getDate(),"H+":(new Date).getHours(),"m+":(new Date).getMinutes(),"s+":(new Date).getSeconds(),"q+":Math.floor(((new Date).getMonth()+3)/3),S:(new Date).getMilliseconds()};/(y+)/.test(t)&&(t=t.replace(RegExp.$1,((new Date).getFullYear()+"").substr(4-RegExp.$1.length)));for(let e in s)new RegExp("("+e+")").test(t)&&(t=t.replace(RegExp.$1,1==RegExp.$1.length?s[e]:("00"+s[e]).substr((""+s[e]).length)));return t}msg(s=t,e="",i="",o){const h=t=>!t||!this.isLoon()&&this.isSurge()?t:"string"==typeof t?this.isLoon()?t:this.isQuanX()?{"open-url":t}:void 0:"object"==typeof t&&(t["open-url"]||t["media-url"])?this.isLoon()?t["open-url"]:this.isQuanX()?t:void 0:void 0;this.isSurge()||this.isLoon()?$notification.post(s,e,i,h(o)):this.isQuanX()&&$notify(s,e,i,h(o)),this.logs.push("","==============\ud83d\udce3\u7cfb\u7edf\u901a\u77e5\ud83d\udce3=============="),this.logs.push(s),e&&this.logs.push(e),i&&this.logs.push(i)}log(...t){t.length>0?this.logs=[...this.logs,...t]:console.log(this.logs.join(this.logSeparator))}logErr(t,s){const e=!this.isSurge()&&!this.isQuanX()&&!this.isLoon();e?$.log("",`\u2757\ufe0f${this.name}, \u9519\u8bef!`,t.stack):$.log("",`\u2757\ufe0f${this.name}, \u9519\u8bef!`,t)}wait(t){return new Promise(s=>setTimeout(s,t))}done(t={}){const s=(new Date).getTime(),e=(s-this.startTime)/1e3;this.log("",`\ud83d\udd14${this.name}, \u7ed3\u675f! \ud83d\udd5b ${e} \u79d2`),this.log(),(this.isSurge()||this.isQuanX()||this.isLoon())&&$done(t)}}(t,s)}
