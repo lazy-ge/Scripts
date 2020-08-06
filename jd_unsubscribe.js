@@ -3,8 +3,8 @@ const $ = new Env('取关京东店铺和商品');
 const Key = '';
 //如需双账号签到,此处单引号内填写抓取的"账号2"Cookie, 否则请勿填写
 const DualKey = '';
-const goodPageSize = $.getdata('jdUnsubscribePageSize') || 30;// 运行一次取消多少个已关注的商品。
-const shopPageSize = $.getdata('jdUnsubscribeShopPageSize') || 30;// 运行一次取消多少个已关注的店铺。
+const goodPageSize = $.getdata('jdUnsubscribePageSize') || 50;// 运行一次取消多少个已关注的商品。
+const shopPageSize = $.getdata('jdUnsubscribeShopPageSize') || 50;// 运行一次取消多少个已关注的店铺。
 const jdNotify = 'true';
 const stop = $.getdata('jdUnsubscribeStopGoods') || '';//遇到此商品不再进行取关，此处内容需去商品详情页（自营处）长按拷贝商品信息
 const stopShop = $.getdata('jdUnsubscribeStopShop') || '';//遇到此店铺不再进行取关，此处内容请尽量从头开始输入店铺名称
