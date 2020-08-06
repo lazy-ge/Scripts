@@ -1,5 +1,3 @@
-//搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_moneyTree.js),不弹窗提示
-
 const $ = new Env('京东摇钱树');
 const Key = '';//单引号内自行填写您抓取的京东Cookie
 //直接用NobyDa的jd cookie
