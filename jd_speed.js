@@ -1,18 +1,3 @@
-/*
-京东天天加速链接：https://raw.githubusercontent.com/lxk0301/scripts/master/jd_speed.js
-更新时间:2020-07-21
-每天4京豆，再小的苍蝇也是肉
-从 https://github.com/Zero-S1/JD_tools/blob/master/JD_speed.py 改写来的
-建议3小时运行一次，打卡时间间隔是6小时
-注：如果使用Node.js, 需自行安装'crypto-js,got,http-server,tough-cookie'模块. 例: npm install crypto-js http-server tough-cookie got --save
-*/
-// quantumultx
-// [task_local]
-// #天天加速
-// 8 */3 * * * https://raw.githubusercontent.com/lxk0301/scripts/master/jd_speed.js, tag=京东天天加速, img-url=https://raw.githubusercontent.com/znz1992/Gallery/master/jdttjs.png, enabled=true
-// Loon
-// [Script]
-// cron "8 */3 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_speed.js,tag=京东天天加速
 const name = '天天加速';
 const $ = new Env(name);
 const Key = '';//单引号内自行填写您抓取的京东Cookie
