@@ -1,5 +1,3 @@
-//搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_joy.js),不弹窗提示
-
 const name = '京东宠汪汪';
 const $ = new Env(name);
 const FEED_NUM = ($.getdata('joyFeedCount') * 1) || 10   //每次喂养数量 [10,20,40,80]
