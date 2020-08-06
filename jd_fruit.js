@@ -1,7 +1,6 @@
+//搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_fruit.js),不弹窗提示
 
-//搬运自nzw9314(https://github.com/nzw9314/QuantumultX/blob/master/Task/jd_fruit.js),不弹窗提示
-
-let name = '';
+let name = '东东农场';
 const retainWater = 50;//保留水滴大于多少g,默认50g;
 const $ = new Env(name);
 const Key = '';//单引号内自行填写您抓取的京东Cookie
@@ -10,7 +9,7 @@ const cookie = Key ? Key : $.getdata('CookieJD');
 //京东接口地址
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
-let jdNotify = $.getdata('jdFruitNotify');
+let jdNotify = 'true';
 //助力好友分享码(最多4个,否则后面的助力失败),原因:京东农场每人每天只有四次助力机会
 let shareCodes = [
 '118ef90ea2be4106ab45f3ff31c2a8f1&apos',
@@ -718,7 +717,7 @@ function* step() {
     }
   }
   if (!jdNotify || jdNotify === 'false') {
-    $.msg();
+    $.msg(name, subTitle, message, option);
   }
   $.done();
 }
