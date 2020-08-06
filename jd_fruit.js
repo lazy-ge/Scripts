@@ -1,5 +1,3 @@
-//搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_fruit.js),不弹窗提示
-
 let name = '东东农场';
 const retainWater = 50;//保留水滴大于多少g,默认50g;
 const $ = new Env(name);
