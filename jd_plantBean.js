@@ -1,5 +1,3 @@
-//搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_plantBean.js),不弹窗提示
-
 const name = '京东种豆得豆';
 const $ = new Env(name);
 const Key = '';//单引号内自行填写您抓取的京东Cookie
