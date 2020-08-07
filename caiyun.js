@@ -263,7 +263,7 @@ ${alertInfo}${hourlySkycon}
 
 function dailyForcast() {}
 
-/************************** 天气对照表 *********************************/
+/************************* 天气对照表 ********************************/
 
 function mapAlertCode(code) {
   const names = {
