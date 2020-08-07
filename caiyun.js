@@ -1,5 +1,5 @@
-var caiyun_api = "";  //彩云天气API
-var tencent_api = "";  //腾讯地图API
+var caiyun_api = "";  //彩云天气令牌
+var tencent_api = "";  //腾讯地图令牌
 var location_latitude = "";  //纬度
 var locationn_longitude = "";  //经度
 
