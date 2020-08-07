@@ -8,11 +8,11 @@
 
 京东小游戏搬运自 lxk0301 大佬项目地址(https://github.com/lxk0301/scripts)
 
-caiyun.js 搬运自 Peng-YM 大佬项目地址(https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/caiyun.js)
+caiyun.js 搬运自 Peng-YM 大佬项目地址(https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)
+
+GitHub.js 搬运自 Peng-YM 大佬项目地址(https://github.com/Peng-YM/QuanX/blob/master/Tasks/github.js)
 
 testflight.js 搬运自 songyangzz 大佬项目地址(https://github.com/songyangzz/QxScripts/blob/master/testflight.js)
-
-GitHub.js 搬运自 Peng-YM 大佬项目地址(https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/github.js)
 
 以下是使用方法
 
