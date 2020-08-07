@@ -1,3 +1,5 @@
+//搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_unsubscribe.js),不弹窗提示
+
 const $ = new Env('取关京东店铺和商品');
 //如使用node.js。请在下方单引号内自行填写您抓取的京东Cookie
 const Key = '';
