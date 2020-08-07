@@ -1,7 +1,7 @@
-var caiyun_api = "";  //彩云天气令牌
-var tencent_api = "";  //腾讯地图令牌
+var caiyun_api = "";  //彩云天气API
+var tencent_api = "";  //腾讯地图API
 var location_latitude = "";  //纬度
-var location_longitude = "";  //经度
+var locationn_longitude = "";  //经度
 
 /********************** SCRIPT START *********************************/
 const $ = API("caiyun");
@@ -15,23 +15,34 @@ if (typeof $request !== "undefined") {
     url.match(/weather\/.*?\/(.*)\/(.*)\?/) ||
     url.match(/geocode\/([0-9.]*)\/([0-9.]*)\//) ||
     url.match(/geocode=([0-9.]*),([0-9.]*)/);
-
-  $.write(res[1], "#latitude");
-  $.write(res[2], "#longitude");
-
-  $.write(location, "location");
-  $.done({ body: $request.body });
+  if (res === null) {
+    $.notify(
+      "[彩云天气]",
+      "❌ 正则表达式匹配错误",
+      `🥬 无法从URL: ${url} 获取位置。`
+    );
+    $.done({ body: $request.body });
+  }
 } else {
   // this is a task
   !(async () => {
-    const { caiyun } = $.read("token") || {};
+    const { caiyun, tencent } = $.read("token") || {};
 
-    if (!caiyun) {
-    } if (!$.read("location")) {
-    } else {
       await scheduler();
-    }
+
   })()
+    .catch((err) => {
+      if (err instanceof ERR.TokenError)
+        $.notify(
+          "[彩云天气]",
+          err.message,
+          "🤖 由于API Token具有时效性，请前往\nhttps://t.me/cool_scripts\n获取最新Token。",
+          {
+            "open-url": "https://t.me/cool_scripts",
+          }
+        );
+      else $.notify("[彩云天气]", "❌ 出现错误", err.message);
+    })
     .finally($.done());
 }
 
@@ -50,7 +61,7 @@ async function scheduler() {
 async function query() {
   const now = new Date();
     // query API
-    const url = `https://api.caiyunapp.com/v2.5/${caiyun_api}/${location_longitude},${location_latitude}/weather?lang=zh_CN&dailystart=0&hourlysteps=384&dailysteps=16&alert=true`;
+    const url = `https://api.caiyunapp.com/v2.5/${caiyun_api}/${locationn_longitude},${location_latitude}/weather?lang=zh_CN&dailystart=0&hourlysteps=384&dailysteps=16&alert=true`;
 
     $.log("Query weather...");
 
@@ -73,7 +84,7 @@ async function query() {
     await $.wait(Math.random()*2000);
     const address =
       await $
-        .get(`https://apis.map.qq.com/ws/geocoder/v1/?key=${tencent_api}&location=${location_latitude},${location_longitude}`)
+        .get(`https://apis.map.qq.com/ws/geocoder/v1/?key=${tencent_api}&location=${location_latitude},${locationn_longitude}`)
         .then(resp => {
           const body = JSON.parse(resp.body);
           if (body.status !== 0) {
@@ -101,7 +112,7 @@ function weatherAlert() {
     data.content.forEach((alert) => {
       if (alerted.indexOf(alert.alertId) === -1) {
         $.notify(
-          `[彩云天气] ${address.city} ${address.district} ${address.street}`,
+          `${address.city} ${address.district} ${address.street}`,
           alert.title,
           alert.description
         );
@@ -148,16 +159,9 @@ function realtimeWeather() {
   }
 
   $.notify(
-    `[彩云天气] ${address.city} ${address.district} ${address.street}`,
-    `${mapSkycon(realtime.skycon)[0]} ${realtime.temperature} ℃  🌤 空气质量 ${
-      realtime.air_quality.description.chn
-    }`,
-    `🔱 ${keypoint}
-🌡 体感${realtime.life_index.comfort.desc} ${
-      realtime.apparent_temperature
-    } ℃  💧 湿度 ${(realtime.humidity * 100).toFixed(0)}%
-🌞 紫外线 ${realtime.life_index.ultraviolet.desc} 💨 风力 ${mapWind(realtime.wind.speed, realtime.wind.direction)}
-
+    `${address.province} ${address.city} ${address.district} ${address.street}`,
+    `${mapSkycon(realtime.skycon)} ${realtime.life_index.comfort.desc} 风力${mapWind(realtime.wind.speed, realtime.wind.direction)} 体感${realtime.temperature}℃ 气温${realtime.apparent_temperature}℃`,
+    `${keypoint}！
 ${alertInfo}${hourlySkycon}
 `,
     {
@@ -187,18 +191,18 @@ function mapAlertCode(code) {
     "13": "霾",
     "14": "道路结冰",
     "15": "森林火灾",
-    "16": "雷雨大风",
+    "16": "雷雨大风"
   };
 
   const intensity = {
     "01": "蓝色",
     "02": "黄色",
     "03": "橙色",
-    "04": "红色",
+    "04": "红色"
   };
 
   const res = code.match(/(\d{2})(\d{2})/);
-  return `${names[res[1]]}${intensity[res[2]]}`;
+  return `${names[res[1]]}${intensity[res[2]]}`
 }
 
 function mapWind(speed, direction) {
@@ -224,13 +228,12 @@ function mapWind(speed, direction) {
   } else if (speed <= 88) {
     description = "9级";
   } else {
-    description = ">9级";
+    description = ">9级 台风";
   }
   return description;
 }
 
 // 天气状况 --> 自然语言描述
-// icon来源：https://dribbble.com/kel
 function mapSkycon(skycon) {
   const map = {
     "CLEAR_DAY": ["日间晴朗"],
@@ -269,7 +272,9 @@ function mapPrecipitation(intensity) {
   }
 }
 
-function mapIntensity(breakpoints) {}
+function mapIntensity(breakpoints) {
+
+}
 
 /************************** ERROR *********************************/
 function MYERR() {
@@ -281,8 +286,8 @@ function MYERR() {
   }
 
   return {
-    TokenError,
-  };
+    TokenError
+  }
 }
 
 // prettier-ignore
