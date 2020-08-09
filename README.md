@@ -8,12 +8,12 @@
 
 京东小游戏搬运自 lxk0301 大佬项目地址[https://github.com/lxk0301/scripts]
 
-(caiyun.js(https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)) 搬运自 Peng-YM caiyun.js(https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)
+[caiyun.js](https://github.com/chiupam/Scripts/blob/master/caiyun.js) 搬运自 Peng-YM [caiyun.js](https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)
 
-GitHub.js 搬运自 Peng-YM 大佬项目地址(https://github.com/Peng-YM/QuanX/blob/master/Tasks/github.js)
+[GitHub.js](https://github.com/chiupam/Scripts/blob/master/GitHub.js) 搬运自 Peng-YM [github.js](https://github.com/Peng-YM/QuanX/blob/master/Tasks/github.js)
 
-testflight.js 搬运自 songyangzz 大佬项目地址(https://github.com/songyangzz/QxScripts/blob/master/testflight.js)
+[testflight.js](https://github.com/chiupam/Scripts/blob/master/testflight.js) 搬运自 songyangzz [testflight.js](https://github.com/songyangzz/QxScripts/blob/master/testflight.js)
 
 以下是使用方法
 
-caiyun,js 使用方法:必须下载到本地,引用本地脚本路径,填入令牌和经纬度即可.优点是不需要进入boxjs,缺点也很明显,只能本地引用和固定地点~
+[caiyun.js](https://github.com/chiupam/Scripts/blob/master/caiyun.js) 使用方法:必须下载到本地,引用本地脚本路径,填入令牌和经纬度即可.优点是不需要进入boxjs,缺点也很明显,只能本地引用和固定地点~
