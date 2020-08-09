@@ -6,9 +6,9 @@
 
 以下是脚本来源
 
-京东小游戏搬运自 lxk0301 大佬项目地址(https://github.com/lxk0301/scripts)
+京东小游戏搬运自 lxk0301 大佬项目地址[https://github.com/lxk0301/scripts]
 
-([caiyun.js](https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)) 搬运自 Peng-YM 大佬项目地址(https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)
+(caiyun.js(https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)) 搬运自 Peng-YM caiyun.js(https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)
 
 GitHub.js 搬运自 Peng-YM 大佬项目地址(https://github.com/Peng-YM/QuanX/blob/master/Tasks/github.js)
 
