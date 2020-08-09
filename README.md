@@ -8,23 +8,23 @@
 
 京东小游戏 搬运自 lxk0301 大佬项目地址 [点这里](https://github.com/lxk0301/scripts)
 
-[jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
+[东东农场](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [东东农场](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
 
-[jd_joy.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_joy.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
+[宠汪汪](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [宠汪汪](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
 
-[jd_moneyTreejd_moneyTree.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_moneyTree.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
+[摇钱树](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [摇钱树](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
 
-[jd_petjd_pet.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_pet.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
+[东东萌宠](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [东东萌宠](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
 
-[jd_plantBeanjd_plantBean.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_plantBean.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
+[种豆得豆](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [种豆得豆](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
 
-[jd_speedjd_speed.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_speed.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
+[天天加速](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [天天加速](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
 
-[caiyun.js](https://github.com/chiupam/Scripts/blob/master/caiyun.js) 修改自自 @Peng-YM [caiyun.js](https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)
+[彩云天气](https://github.com/chiupam/Scripts/blob/master/caiyun.js) 修改自自 @Peng-YM [caiyun.js](https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)
 
-[GitHub.js](https://github.com/chiupam/Scripts/blob/master/GitHub.js) 修改自 @Peng-YM [github.js](https://github.com/Peng-YM/QuanX/blob/master/Tasks/github.js)
+[github监控](https://github.com/chiupam/Scripts/blob/master/GitHub.js) 修改自 @Peng-YM [github.js](https://github.com/Peng-YM/QuanX/blob/master/Tasks/github.js)
 
-[testflight.js](https://github.com/chiupam/Scripts/blob/master/testflight.js) 修改自 @songyangzz [testflight.js](https://github.com/songyangzz/QxScripts/blob/master/testflight.js)
+[testflight监控](https://github.com/chiupam/Scripts/blob/master/testflight.js) 修改自 @songyangzz [testflight.js](https://github.com/songyangzz/QxScripts/blob/master/testflight.js)
 
 以下是使用方法
 
