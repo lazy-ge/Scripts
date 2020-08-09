@@ -8,11 +8,18 @@
 
 京东小游戏 搬运自 lxk0301 大佬项目地址 [点这里](https://github.com/lxk0301/scripts)
 
-[caiyun.js](https://github.com/chiupam/Scripts/blob/master/caiyun.js) 搬运自 Peng-YM [caiyun.js](https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)
+[jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
+[jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
+[jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
+[jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
+[jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
+[jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
 
-[GitHub.js](https://github.com/chiupam/Scripts/blob/master/GitHub.js) 搬运自 Peng-YM [github.js](https://github.com/Peng-YM/QuanX/blob/master/Tasks/github.js)
+[caiyun.js](https://github.com/chiupam/Scripts/blob/master/caiyun.js) 搬运自 @Peng-YM [caiyun.js](https://github.com/Peng-YM/QuanX/blob/master/Tasks/caiyun.js)
 
-[testflight.js](https://github.com/chiupam/Scripts/blob/master/testflight.js) 搬运自 songyangzz [testflight.js](https://github.com/songyangzz/QxScripts/blob/master/testflight.js)
+[GitHub.js](https://github.com/chiupam/Scripts/blob/master/GitHub.js) 搬运自 @Peng-YM [github.js](https://github.com/Peng-YM/QuanX/blob/master/Tasks/github.js)
+
+[testflight.js](https://github.com/chiupam/Scripts/blob/master/testflight.js) 搬运自 @songyangzz [testflight.js](https://github.com/songyangzz/QxScripts/blob/master/testflight.js)
 
 以下是使用方法
 
