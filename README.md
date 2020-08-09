@@ -6,7 +6,7 @@
 
 以下是脚本来源
 
-京东小游戏 搬运自 lxk0301 大佬项目地址 [点这里](https://github.com/lxk0301/scripts)
+京东小游戏 搬运自 lxk0301 源项目地址 [点这里](https://github.com/lxk0301/scripts)
 
 [东东农场](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js) 修改自 @lxk0301 [jd_fruit.js](https://github.com/chiupam/Scripts/blob/master/jd_fruit.js)
 
