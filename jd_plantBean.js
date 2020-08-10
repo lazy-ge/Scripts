@@ -6,13 +6,15 @@ const Key = '';//单引号内自行填写您抓取的京东Cookie
 //直接用NobyDa的jd cookie
 const cookie =  Key ? Key : $.getdata('CookieJD');
 let jdNotify = 'true';
-const JD_API_HOST = 'https://api.m.jd.com/client.action';
-var plantUuids = [
-'olmijoxgmjutyw3xraw4bu7jkcdvszaezqfffiq&apos',
-'sptv55gzcksfquzoq5k2ubuj4i&apos',
-';mlrdw3aw26j3xnp6oj2azes26laj5dwiyn5wdxa&apos'
-]
 
+//京东接口地址
+const JD_API_HOST = 'https://api.m.jd.com/client.action';
+
+var plantUuids = [ // 这个列表填入你要助力的好友的plantUuid
+    'olmijoxgmjutyw3xraw4bu7jkcdvszaezqfffiq',
+    'sptv55gzcksfquzoq5k2ubuj4i&apos',
+    'mlrdw3aw26j3xnp6oj2azes26laj5dwiyn5wdxa'
+]
 let currentRoundId = null;//本期活动id
 let lastRoundId = null;//上期id
 let roundList = [];
