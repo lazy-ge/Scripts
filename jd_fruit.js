@@ -3,7 +3,8 @@
 let name = '东东农场';
 const retainWater = 50;//保留水滴大于多少g,默认50g;
 const $ = new Env(name);
-const Key = '';//单引号内自行填写您抓取的京东Cookie
+//单引号内自行填写您抓取的京东Cookie
+const Key = '';
 //直接用NobyDa的jd cookie
 const cookie = Key ? Key : $.getdata('CookieJD');
 //京东接口地址
@@ -11,12 +12,11 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
 let jdNotify = 'true';
 //助力好友分享码(最多4个,否则后面的助力失败),原因:京东农场每人每天只有四次助力机会
-let shareCodes = [
-'118ef90ea2be4106ab45f3ff31c2a8f1&apos',
-'7b5f2dd4b5514226b280b702b2aab4f3&apos',
-'9e4d4547d5e3438a916c5ad8fe2c6f36&apos'
+let shareCodes = [ // 这个列表填入你要助力的好友的shareCode
+  '118ef90ea2be4106ab45f3ff31c2a8f1',
+  '7b5f2dd4b5514226b280b702b2aab4f3',
+  '9e4d4547d5e3438a916c5ad8fe2c6f36'
 ]
-
 // 添加box功能
 // 【用box订阅的好处】
 // 1️⃣脚本也可以远程挂载了。助力功能只需在box里面设置助力码。
@@ -393,6 +393,21 @@ function* step() {
       } else {
         console.log('4小时候免费赠送的抽奖机会已领取')
       }
+      if (initForTurntableFarmRes.turntableBrowserAds && initForTurntableFarmRes.turntableBrowserAds.length > 0) {
+        console.log('开始浏览天天抽奖的逛会场任务')
+        if (!initForTurntableFarmRes.turntableBrowserAds[0].status) {
+          const browserForTurntableFarmRes = yield browserForTurntableFarm(initForTurntableFarmRes.turntableBrowserAds[0].adId);
+          if (browserForTurntableFarmRes.code === '0' && browserForTurntableFarmRes.status) {
+            const browserForTurntableFarm2Res = yield browserForTurntableFarm2(initForTurntableFarmRes.turntableBrowserAds[0].adId);
+            if (browserForTurntableFarm2Res.code === '0') {
+              initForTurntableFarmRes = yield initForTurntableFarm();
+              remainLotteryTimes = initForTurntableFarmRes.remainLotteryTimes;
+            }
+          }
+        } else {
+          console.log('天天抽奖浏览任务已经做完')
+        }
+      }
       //天天抽奖助力
       console.log('开始天天抽奖--好友助力--每人每天只有三次助力机会.')
       for (let code of shareCodes) {
@@ -760,11 +775,17 @@ function browserForTurntableFarm(type) {
   if (type === 2) {
     console.log('领取浏览爆品会场奖励');
   }
-
-  request(arguments.callee.name.toString(), {type: type});
+  const body = {"type":1,"adId": type,"version":4,"channel":1};
+  console.log('type', type  + "");
+  console.log(body)
+  // request(arguments.callee.name.toString(), {type: type});
+  request(arguments.callee.name.toString(), body);
   // 浏览爆品会场8秒
 }
-
+function browserForTurntableFarm2(type) {
+  const body = {"type":2,"adId": type,"version":4,"channel":1};
+  request('browserForTurntableFarm', body);
+}
 /**
  * 领取浇水过程中的阶段性奖励
  */
@@ -902,17 +923,16 @@ function gotClockInGift() {
 
 function request(function_id, body = {}) {
   $.get(taskurl(function_id, body), (err, resp, data) => {
-    if (err) {
-      console.log("=== request error -s--");
-      console.log("=== request error -e--");
-    } else {
-      try {
+    try {
+      if (err) {
+        console.log('\n东东农场: API查询请求失败 ‼️‼️')
+      } else {
         data = JSON.parse(data);
-      } catch (e) {
-        console.log(e);
-      } finally {
-        sleep(data);
       }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      sleep(data);
     }
   })
 }
