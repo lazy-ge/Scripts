@@ -2,18 +2,21 @@
 
 const name = '东东萌宠';
 const $ = new Env(name);
-const Key = '';//单引号内自行填写您抓取的京东Cookie
+
+// =======node.js使用说明======
+// 单引号内自行填写您抓取的京东Cookie
+const Key = '';
+//=======node.js使用说明结束=======
 //直接用NobyDa的jd cookie
 const cookie =  Key ? Key : $.getdata('CookieJD');
 //京东接口地址
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 let jdNotify = 'true';
-let shareCodes = [
-'MTAxODc2NTEzNTAwMDAwMDAyNzQ1OTEzOQ==',
-'MTAxODc2NTEzMjAwMDAwMDAyNzA4MjkwNw==',
-'MTAxODc2NTEzNDAwMDAwMDAzMDY0OTU3NQ=='
+let shareCodes = [ // 这个列表填入你要助力的好友的shareCode, 最多可能是5个
+  'MTAxODc2NTEzNTAwMDAwMDAyNzQ1OTEzOQ==',
+  'MTAxODc2NTEzMjAwMDAwMDAyNzA4MjkwNw==',
+  'MTAxODc2NTEzNDAwMDAwMDAzMDY0OTU3NQ=='
 ]
-
 // 添加box功能
 // 【用box订阅的好处】
 // 1️⃣脚本也可以远程挂载了。助力功能只需在box里面设置助力码。
@@ -286,9 +289,9 @@ function browseSingleShopInit2() {
         if (response2.code === '0' && response2.resultCode === '0') {
           message += `【冰淇淋会场】获取狗粮${response2.result.reward}g\n`;
         }
-        gen.next();
       })
     }
+    gen.next();
   })
 }
 function browseSingleShopInit3() {
@@ -303,9 +306,9 @@ function browseSingleShopInit3() {
         if (response2.code === '0' && response2.resultCode === '0') {
           message += `【去参与星品解锁计划】获取狗粮${response2.result.reward}g\n`;
         }
-        gen.next();
       })
     }
+    gen.next();
   })
 }
 // 三餐签到, 每天三段签到时间
@@ -493,17 +496,16 @@ async function request(function_id, body = {}) {
     await $.wait(3000); //歇口气儿, 不然会报操作频繁
     return new Promise((resolve, reject) => {
         $.get(taskurl(function_id, body), (err, resp, data) => {
-          if (err) {
-            console.log("=== request error -s--");
-            console.log("=== request error -e--");
-          } else {
-            try {
+          try {
+            if (err) {
+              console.log('\n东东萌宠: API查询请求失败 ‼️‼️')
+            } else {
               data = JSON.parse(data);
-            } catch (e) {
-              console.log(e)
-            } finally {
-              resolve(data)
             }
+          } catch (e) {
+            console.log(e)
+          } finally {
+            resolve(data)
           }
         })
     })
