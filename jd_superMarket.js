@@ -1,4 +1,4 @@
-//搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_superMaket.js),不弹窗提示
+//搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_superMarket.js),不弹窗提示
 
 const $ = new Env('京小超');
 //Node.js用户请在jdCookie.js处填写京东ck;
@@ -7,6 +7,7 @@ const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 //iOS等软件直接用NobyDa的jd cookie
 let cookie = jdCookieNode.CookieJD ? jdCookieNode.CookieJD : $.getdata('CookieJD');
 const cookie2 = jdCookieNode.CookieJD2 ? jdCookieNode.CookieJD2 : $.getdata('CookieJD2');
+const jdNotify = true
 let UserName = '', todayDay = 0, message = '';
 const JD_API_HOST = 'https://api.m.jd.com/api';
 !(async () => {
@@ -37,7 +38,9 @@ async function jdSuperMarket(DoubleKey) {
   await smtgSignList();
   await smtgSign();//每日签到
   await doDailyTask();//做日常任务，分享，关注店铺，
-  $.msg($.name, '', `【京东账号${DoubleKey?'二':'一'}】${UserName}\n ${message}`);
+  if (!jdNotify || jdNotify === 'false') {
+    $.msg($.name, '', `【京东账号${DoubleKey?'二':'一'}】${UserName}\n ${message}`);
+  }
 }
 async function doDailyTask() {
   const smtgQueryShopTaskRes = await smtgQueryShopTask();
