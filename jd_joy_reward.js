@@ -1,7 +1,7 @@
 //搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_joy_reward.js),不弹窗提示
 
 const $ = new Env('宠汪汪积分兑换奖品');
-const joyRewardName = $.getdata('joyRewardName') || 20;//兑换多少数量的京豆，默认兑换20京豆
+const joyRewardName = $.getdata('joyRewardName') || 100;//兑换多少数量的京豆，默认兑换20京豆
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 
