@@ -4,26 +4,35 @@ const $ = new Env('京小超');
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 
-//iOS等软件直接用NobyDa的jd cookie
-let cookie = jdCookieNode.CookieJD ? jdCookieNode.CookieJD : $.getdata('CookieJD');
-const cookie2 = jdCookieNode.CookieJD2 ? jdCookieNode.CookieJD2 : $.getdata('CookieJD2');
-const jdNotify = true
-let UserName = '', todayDay = 0, message = '';
+//IOS等用户直接用NobyDa的jd cookie
+let cookiesArr = [], cookie = '';
+if ($.isNode()) {
+  Object.keys(jdCookieNode).forEach((item) => {
+    cookiesArr.push(jdCookieNode[item])
+  })
+} else {
+  cookiesArr.push($.getdata('CookieJD'));
+  cookiesArr.push($.getdata('CookieJD2'));
+}
+
+let jdNotify = 'true';
+const receiveBlueCoinTimes = 20; //运行一次脚本收取多少次小费(蓝币),默认20次,如达到上限,会跳出,不继续浪费时间收取
+let UserName = '', todayDay = 0, message = '', subTitle;
 const JD_API_HOST = 'https://api.m.jd.com/api';
 !(async () => {
-  if (!cookie) {
-    $.msg(`【京东账号一】${$.name}`, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', {"open-url": "https://bean.m.jd.com/"});
-  } else {
-    UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1]);
-    console.log(`\n开始【京东账号一】${UserName}\n`)
-    await jdSuperMarket();
+  if (!cookiesArr[0]) {
+    $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', {"open-url": "https://bean.m.jd.com/"});
   }
-  if (cookie2) {
-    cookie = cookie2;
-    message = '';
-    UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1]);
-    console.log(`\n开始【京东账号二】${UserName}\n`)
-    await jdSuperMarket(cookie2);
+  for (let i = 0; i < cookiesArr.length; i++) {
+    if (cookiesArr[i]) {
+      cookie = cookiesArr[i];
+      UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
+      $.index = i + 1;
+      console.log(`\n开始【京东账号${$.index}】${UserName}\n`);
+      message = '';
+      subTitle = '';
+      await jdSuperMarket();
+    }
   }
 })()
     .catch((e) => {
@@ -33,13 +42,14 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
       $.done();
     })
 async function jdSuperMarket(DoubleKey) {
-  await smtgReceiveCoin(0);//收金币
-  await smtgReceiveCoin(2);//收蓝币（小费）
+  await receiveGoldCoin();//收金币
+  //await receiveBlueCoin();//收蓝币（小费）
   await smtgSignList();
   await smtgSign();//每日签到
   await doDailyTask();//做日常任务，分享，关注店铺，
+  await smtgHome();
   if (!jdNotify || jdNotify === 'false') {
-    $.msg($.name, '', `【京东账号${DoubleKey?'二':'一'}】${UserName}\n ${message}`);
+    $.msg($.name, subTitle ,`【京东账号${$.index}】${UserName}\n${message}`);
   }
 }
 async function doDailyTask() {
@@ -82,6 +92,55 @@ async function doDailyTask() {
     }
   }
 }
+async function receiveBlueCoin() {
+  let receivedBlue = 0;
+  const res = await smtgReceiveCoin(2);
+  console.log('开始收取蓝币')
+  if (res.data.bizCode === 0) {
+    console.log(`第1次收取蓝币成功,${res.data.result.receivedBlue}个`)
+    receivedBlue += res.data.result.receivedBlue;
+    for (let i = 0; i < new Array(receiveBlueCoinTimes).fill('').length; i++) {
+      await $.wait(3000);
+      const data = await smtgReceiveCoin(2);
+      if (data.data.bizCode === 0) {
+        console.log(`第${i + 2}次收取蓝币成功,${data.data.result.receivedBlue}个`)
+        receivedBlue += data.data.result.receivedBlue;
+      } else {
+        console.log(`蓝币:${data.data.bizMsg}`);
+        break;
+      }
+    }
+    message += `【领取蓝币】${receivedBlue}个\n`
+  } else {
+    console.log('今日领小费(蓝币)已达上限')
+  }
+}
+
+async function receiveGoldCoin() {
+  return new Promise(async resolve => {
+    const data = await smtgReceiveCoin(0);
+    // console.log('data-----------', data)
+    if (data.data.bizCode === 0) {
+      console.log(`领取金币成功${data.data.result.receivedGold}`)
+      message += `【领取金币】${data.data.result.receivedGold}个\n`;
+      resolve();
+    } else {
+      console.log(`${data.data.bizMsg}`);
+      if (data.data.bizCode === 300) {
+        $.msg($.name, `【提示】京东账号${$.index}${UserName} cookie已过期！请先获取cookie\n直接使用NobyDa的京东签到获取`, 'https://bean.m.jd.com/', {"open-url": "https://bean.m.jd.com/"});
+        if ($.index === 1) {
+          $.setdata('', 'CookieJD');//cookie失效，故清空cookie。
+        } else if ($.index === 2){
+          $.setdata('', 'CookieJD2');//cookie失效，故清空cookie。
+        }
+        resolve()
+      } else {
+        message += `【领取金币】失败，${data.data.bizMsg}\n`;
+        resolve();
+      }
+    }
+  })
+}
 function smtgReceiveCoin(type) {
   return new Promise((resolve) => {
     const body = {
@@ -90,21 +149,22 @@ function smtgReceiveCoin(type) {
     $.get(taskUrl('smtg_receiveCoin', body), (err, resp, data) => {
       try {
         data = JSON.parse(data);
-        // console.log('ddd----ddd', data)
-        if (data.data.bizCode === 0) {
-          if (type === 0) {
-            console.log(`领取金币成功${data.data.result.receivedGold},共有金币${data.data.result.totalGold}`)
-            message += `【领取金币】${data.data.result.receivedGold}个\n`;
-            message += `【共有金币】${data.data.result.totalGold}个\n`;
-          } else if (type === 2) {
-            console.log(`领取蓝币成功${data.data.result.receivedBlue},共有蓝币${data.data.result.totalBlue}`);
-            message += `【领取蓝币】${data.data.result.receivedBlue}个\n`;
-            message += `【共有蓝币】${data.data.result.totalBlue}个\n`;
-          }
-        } else {
-          console.log(`${data.data.bizMsg}`);
-          message += `【领取蓝币】失败，${data.data.bizMsg}\n`;
-        }
+        // if (data.data.bizCode === 0) {
+        //   if (type === 0) {
+        //     console.log(`领取金币成功${data.data.result.receivedGold}`)
+        //     message += `【领取金币】${data.data.result.receivedGold}个\n`;
+        //   } else if (type === 2) {
+        //     console.log(`领取蓝币成功${data.data.result.receivedBlue}`);
+        //     message += `【领取蓝币】${data.data.result.receivedBlue}个\n`;
+        //   }
+        // } else {
+        //   console.log(`${data.data.bizMsg}`);
+        //   if (type === 0) {
+        //     message += `【领取金币】失败，${data.data.bizMsg}\n`;
+        //   } else if (type === 2) {
+        //     message += `【领取蓝币】失败，${data.data.bizMsg}\n`;
+        //   }
+        // }
       } catch (e) {
         $.logErr(e, resp);
       } finally {
@@ -175,7 +235,7 @@ function smtgSign(day) {
         data = JSON.parse(data);
         // console.log('ddd----ddd', data)
         if (data.code === 0 && data.data.success) {
-          message += `【每日签到】第${todayDay}天签到成功，奖励${data.data.result.jdBeanCount}京豆，${data.data.result.rewardBlue}蓝币\n`
+          message += `【每日签到】第${todayDay}天签到成功，奖励${data.data.result.rewardBlue}蓝币\n`
         } else {
           message += `【每日签到】${data.data.bizMsg}\n`
         }
@@ -195,6 +255,26 @@ function smtgSignList() {
         data = JSON.parse(data);
         if (data.code === 0 && data.data.success) {
           todayDay = data.data.result.todayDay;
+        }
+      } catch (e) {
+        $.logErr(e, resp);
+      } finally {
+        resolve(data);
+      }
+    })
+  })
+}
+function smtgHome() {
+  return new Promise((resolve) => {
+    $.get(taskUrl('smtg_home'), (err, resp, data) => {
+      try {
+        data = JSON.parse(data);
+        if (data.code === 0 && data.data.success) {
+          const { result } = data.data;
+          const { shopName, totalGold, totalBlue } = result;
+          subTitle = shopName;
+          message += `【总金币】${totalGold}个\n`;
+          message += `【总蓝币】${totalBlue}个\n`;
         }
       } catch (e) {
         $.logErr(e, resp);

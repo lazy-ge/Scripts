@@ -2,9 +2,11 @@
 
 const name = '京东种豆得豆';
 const $ = new Env(name);
-const Key = '';//单引号内自行填写您抓取的京东Cookie
-//直接用NobyDa的jd cookie
-const cookie =  Key ? Key : $.getdata('CookieJD');
+//Node.js用户请在jdCookie.js处填写京东ck;
+const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
+
+//ios等软件用户直接用NobyDa的jd cookie
+const cookie = jdCookieNode.CookieJD ? jdCookieNode.CookieJD : $.getdata('CookieJD');
 let jdNotify = 'true';
 
 //京东接口地址
@@ -12,8 +14,9 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
 var plantUuids = [ // 这个列表填入你要助力的好友的plantUuid
     'olmijoxgmjutyw3xraw4bu7jkcdvszaezqfffiq',
-    'sptv55gzcksfquzoq5k2ubuj4i&apos',
+    'sptv55gzcksfquzoq5k2ubuj4i',
     'mlrdw3aw26j3xnp6oj2azes26laj5dwiyn5wdxa'
+
 ]
 let currentRoundId = null;//本期活动id
 let lastRoundId = null;//上期id

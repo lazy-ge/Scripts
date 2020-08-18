@@ -4,11 +4,11 @@ const name = '东东萌宠';
 const $ = new Env(name);
 
 // =======node.js使用说明======
-// 单引号内自行填写您抓取的京东Cookie
-const Key = '';
-//=======node.js使用说明结束=======
-//直接用NobyDa的jd cookie
-const cookie =  Key ? Key : $.getdata('CookieJD');
+//Node.js用户请在jdCookie.js处填写京东ck;
+const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
+
+//ios等软件用户直接用NobyDa的jd cookie
+const cookie = jdCookieNode.CookieJD ? jdCookieNode.CookieJD : $.getdata('CookieJD');
 //京东接口地址
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 let jdNotify = 'true';
@@ -16,6 +16,7 @@ let shareCodes = [ // 这个列表填入你要助力的好友的shareCode, 最�
   'MTAxODc2NTEzNTAwMDAwMDAyNzQ1OTEzOQ==',
   'MTAxODc2NTEzMjAwMDAwMDAyNzA4MjkwNw==',
   'MTAxODc2NTEzNDAwMDAwMDAzMDY0OTU3NQ=='
+
 ]
 // 添加box功能
 // 【用box订阅的好处】
@@ -35,7 +36,7 @@ if (isBox) {
     }
   }
 }
-let petInfo = null, taskInfo = null, message = '', subTitle = '', goodsUrl = '', taskInfoKey = [];
+let petInfo = null, taskInfo = null, message = '', subTitle = '', goodsUrl = '', taskInfoKey = [], option = {};
 
 //按顺序执行, 尽量先执行不消耗狗粮的任务, 避免中途狗粮不够, 而任务还没做完
 let function_map = {
@@ -90,10 +91,7 @@ function* entrance() {
     }
     yield feedPetsAgain();//所有任务做完后，检测剩余狗粮是否大于110g,大于就继续投食
     yield energyCollect();
-    let option = {
-      "media-url" : goodsUrl
-    }
-
+    option['media-url'] = goodsUrl;
     if (!jdNotify || jdNotify === 'false') {
       $.msg(name, subTitle, message, option);
     }
@@ -113,7 +111,7 @@ function energyCollect() {
         if (response.code === '0') {
             // message += `【第${petInfo.medalNum + 2}块勋章完成进度】：${response.result.medalPercent}%，还需投食${response.result.needCollectEnergy}g狗粮\n`;
             // message += `【已获得勋章】${petInfo.medalNum + 1}块，还需收集${petInfo.goodsInfo.exchangeMedalNum - petInfo.medalNum - 1}块即可兑换奖品“${petInfo.goodsInfo.goodsName}”\n`;
-          message += `【第${response.result.medalNum + 1}块勋章完成进度】${response.result.medalPercent}%，还需投食${response.result.needCollectEnergy}g\n`;
+          message += `【第${response.result.medalNum + 1}块勋章完成进度】${response.result.medalPercent}%，还需收集${response.result.needCollectEnergy}好感\n`;
           message += `【已获得勋章】${response.result.medalNum}块，还需收集${response.result.needCollectMedalNum}块即可兑换奖品“${petInfo.goodsInfo.goodsName}”\n`;
         }
         gen.next();
@@ -357,8 +355,15 @@ function initPetTown() {
               $.done();
               return
             }
-            goodsUrl = response.result.goodsInfo && response.result.goodsInfo.goodsUrl;
+            goodsUrl = petInfo.goodsInfo && petInfo.goodsInfo.goodsUrl;
             // console.log(`初始化萌宠信息完成: ${JSON.stringify(petInfo)}`);
+            if (petInfo.petStatus === 5 && petInfo.showHongBaoExchangePop) {
+              option['open-url'] = "openApp.jdMobile://";
+              option['media-url'] = goodsUrl;
+              $.msg($.name, `【提醒⏰】${petInfo.goodsInfo.goodsName}已可领取`, '请去京东APP或微信小程序查看', option);
+              $.done();
+              return
+            }
             console.log(`\n【您的互助码shareCode】 ${petInfo.shareCode}\n`);
           gen.next();
         } else if (response.code === '0' && response.resultCode === '2001'){
@@ -485,7 +490,7 @@ function taskInit() {
         }
         taskInfo = response.result;
         // function_map = taskInfo.taskList;
-        console.log(`任务初始化完成: ${JSON.stringify(taskInfo)}`);
+        // console.log(`任务初始化完成: ${JSON.stringify(taskInfo)}`);
         gen.next();
     })
 

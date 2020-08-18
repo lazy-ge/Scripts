@@ -3,19 +3,22 @@
 let name = '东东农场';
 const retainWater = 50;//保留水滴大于多少g,默认50g;
 const $ = new Env(name);
-//单引号内自行填写您抓取的京东Cookie
-const Key = '';
-//直接用NobyDa的jd cookie
-const cookie = Key ? Key : $.getdata('CookieJD');
+//Node.js用户请在jdCookie.js处填写京东ck;
+const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
+
+//ios等软件用户直接用NobyDa的jd cookie
+const cookie = jdCookieNode.CookieJD ? jdCookieNode.CookieJD : $.getdata('CookieJD');
+
 //京东接口地址
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
 let jdNotify = 'true';
 //助力好友分享码(最多4个,否则后面的助力失败),原因:京东农场每人每天只有四次助力机会
 let shareCodes = [ // 这个列表填入你要助力的好友的shareCode
-  '118ef90ea2be4106ab45f3ff31c2a8f1',
-  '7b5f2dd4b5514226b280b702b2aab4f3',
-  '9e4d4547d5e3438a916c5ad8fe2c6f36'
+  '118ef90ea2be4106ab45f3ff31c2a8f1&apos',
+  '7b5f2dd4b5514226b280b702b2aab4f3&apos',
+  '9e4d4547d5e3438a916c5ad8fe2c6f36&apos'
+
 ]
 // 添加box功能
 // 【用box订阅的好处】
@@ -333,7 +336,7 @@ function* step() {
           salveHelpAddWater += helpResult.helpResult.salveHelpAddWater;
           console.log(`【助力好友结果】: 已成功给【${helpResult.helpResult.masterUserInfo.nickName}】助力`);
           console.log(`给好友【${helpResult.helpResult.masterUserInfo.nickName}】助力获得${helpResult.helpResult.salveHelpAddWater}g水滴`)
-          helpSuccessPeoples += helpResult.helpResult.masterUserInfo.nickName + '，';
+          helpSuccessPeoples += helpResult.helpResult.masterUserInfo.nickName || '匿名用户' + ',';
         } else if (helpResult.helpResult.code === '8') {
           console.log(`【助力好友结果】: 助力【${helpResult.helpResult.masterUserInfo.nickName}】失败，您今天助力次数已耗尽`);
         } else if (helpResult.helpResult.code === '9') {
