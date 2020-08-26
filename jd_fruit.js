@@ -15,9 +15,9 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 let jdNotify = 'true';
 //助力好友分享码(最多4个,否则后面的助力失败),原因:京东农场每人每天只有四次助力机会
 let shareCodes = [ // 这个列表填入你要助力的好友的shareCode
-  '118ef90ea2be4106ab45f3ff31c2a8f1&apos',
-  '7b5f2dd4b5514226b280b702b2aab4f3&apos',
-  '9e4d4547d5e3438a916c5ad8fe2c6f36&apos'
+  '118ef90ea2be4106ab45f3ff31c2a8f1',
+  '7b5f2dd4b5514226b280b702b2aab4f3',
+  '9e4d4547d5e3438a916c5ad8fe2c6f36'
 
 ]
 // 添加box功能
