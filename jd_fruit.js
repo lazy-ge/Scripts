@@ -47,17 +47,18 @@ let farmTask = null, isFruitFinished = false;
 
 function* step() {
   let message = '';
-  let subTitle = '';
+  let subTitle = '', UserName = '';
   let option = {};
   if (!cookie) {
     $.msg(name, '【提示】请先获取cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', {"open-url": "https://bean.m.jd.com/"});
     $.done();
     return
   }
+  UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
   let farmInfo = yield initForFarm();
   if (farmInfo.farmUserPro) {
     option['media-url'] = farmInfo.farmUserPro.goodsImage;
-    subTitle = `【${farmInfo.farmUserPro.nickName}】${farmInfo.farmUserPro.name}`;
+    subTitle = `【${UserName}】${farmInfo.farmUserPro.name}`;
     console.log(`\n【您的互助码shareCode】 ${farmInfo.farmUserPro.shareCode}\n`);
     console.log(`\n【已成功兑换水果】${farmInfo.farmUserPro.winTimes}次\n`)
     if (farmInfo.treeState === 0) {
@@ -308,7 +309,7 @@ function* step() {
           if (index === (masterHelpResult.masterHelpPeoples.length - 1)) {
             str += item.nickName || "匿名用户";
           } else {
-            str += (item.nickName || "匿名用户") + '，';
+            str += (item.nickName || "匿名用户") + ',';
           }
           let date = new Date(item.time);
           let time = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getMinutes();
@@ -336,7 +337,7 @@ function* step() {
           salveHelpAddWater += helpResult.helpResult.salveHelpAddWater;
           console.log(`【助力好友结果】: 已成功给【${helpResult.helpResult.masterUserInfo.nickName}】助力`);
           console.log(`给好友【${helpResult.helpResult.masterUserInfo.nickName}】助力获得${helpResult.helpResult.salveHelpAddWater}g水滴`)
-          helpSuccessPeoples += helpResult.helpResult.masterUserInfo.nickName || '匿名用户' + ',';
+          helpSuccessPeoples += (helpResult.helpResult.masterUserInfo.nickName || '匿名用户') + ',';
         } else if (helpResult.helpResult.code === '8') {
           console.log(`【助力好友结果】: 助力【${helpResult.helpResult.masterUserInfo.nickName}】失败，您今天助力次数已耗尽`);
         } else if (helpResult.helpResult.code === '9') {
@@ -360,12 +361,11 @@ function* step() {
     }
     if (helpSuccessPeoples) {
       if ($.getdata(helpSuccessPeoplesKey)) {
-        $.setdata($.getdata(helpSuccessPeoplesKey) + helpSuccessPeoples, helpSuccessPeoplesKey);
+        $.setdata($.getdata(helpSuccessPeoplesKey) + ',' + helpSuccessPeoples, helpSuccessPeoplesKey);
       } else {
         $.setdata(helpSuccessPeoples, helpSuccessPeoplesKey);
       }
     }
-
     helpSuccessPeoples = $.getdata(helpSuccessPeoplesKey);
     if (helpSuccessPeoples && helpSuccessPeoples.length > 0) {
       message += `【您助力的好友👬】${helpSuccessPeoples.substr(0, helpSuccessPeoples.length - 1)}\n`;
@@ -923,7 +923,10 @@ function clockInFollowForFarm(id, type, step) {
 function gotClockInGift() {
   request('clockInForFarm', {"type": 2})
 }
-
+//获取好友列表
+function friendListInitForFarm() {
+  request('friendListInitForFarm')
+}
 function request(function_id, body = {}) {
   $.get(taskurl(function_id, body), (err, resp, data) => {
     try {
