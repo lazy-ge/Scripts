@@ -1,9 +1,3 @@
-var caiyun_api = "";  //彩云天气令牌
-var tencent_api = "";  //腾讯地图令牌
-var location_latitude = "";  //纬度
-var locationn_longitude = "";  //经度
-
-/********************** SCRIPT START *********************************/
 const $ = API("caiyun");
 const ERR = MYERR();
 const display_location = JSON.parse($.read("display_location") || "false");
