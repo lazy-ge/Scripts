@@ -1,6 +1,6 @@
 const $ = API("APP", true);
 
-$.notify("WARN! WARN! WARN!", "THIS IS A WARNING FOR YOU!", "When you receive this notification, you have been banned or kicked by the Loon Official Group. We prohibit anyone from using JaveScript to hack any APP. We hope you can spread this news to your friends and let those who try to use Loon to hack any APP know our approach. And this URL configuration will REJCET all your network access requests. When you close Loon's connection, you can connect to the network normally.");
+$.notify("WARN! WARN! WARN!", "THIS IS A WARNING FOR YOU!", "When you receive this notification, you have been banned or kicked by the Loon Official Group. We prohibit anyone from using JaveScript to hack any APP. We hope you can spread this news to your friends and let those who try to use Loon to hack any APP know our approach. And this URL configuration will REJCET all your network access requests. When you close Loon's connection, you can connect to the network normally.این هشداری برای شماست! "،" وقتی این اعلان را دریافت می کنید ، توسط گروه رسمی Loon ممنوع یا لگد می شوید. ما هر کسی را از استفاده از JaveScript برای هک کردن هر برنامه منع می کنیم. امیدواریم بتوانید این خبر را به دوستان خود منتقل کنید و به کسانی که سعی می کنند از Loon برای هک کردن هر برنامه ای استفاده کنند ، از روش ما مطلع شوند. و این پیکربندی URL کلیه درخواستهای دسترسی به شبکه شما را مجدداً انجام می دهد. وقتی اتصال Loon را می بندید ، می توانید به طور معمول به شبکه متصل شوید.");
 
 
 // prettier-ignore
