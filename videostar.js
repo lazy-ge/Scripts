@@ -1,6 +1,9 @@
 const $ = API("APP", true);
 
 $.notify("WARN! WARN! WARN!", "THIS IS A WARNING FOR YOU!", "When you receive this notification, you have been banned or kicked by the Loon Official Group. We prohibit anyone from using JaveScript to hack any APP. We hope you can spread this news to your friends and let those who try to use Loon to hack any APP know our approach. And this URL configuration will REJCET all your network access requests. When you close Loon's connection, you can connect to the network normally.");
+$.notify("WARN! WARN! WARN!", "THIS IS A WARNING FOR YOU!", "CLICK JUMP", {
+    "open-url": "https://t.me/Loon0x00",
+  });
 
 
 // prettier-ignore
