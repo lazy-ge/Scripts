@@ -1,5 +1,6 @@
 /* 搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_plantBean.js),不弹窗提示
-    'olmijoxgmjutyw3xraw4bu7jkcdvszaezqfffiq@sptv55gzcksfquzoq5k2ubuj4i@mlrdw3aw26j3xnp6oj2azes26laj5dwiyn5wdxa'
+
+  'olmijoxgmjutyw3xraw4bu7jkcdvszaezqfffiq@sptv55gzcksfquzoq5k2ubuj4i@mlrdw3aw26j3xnp6oj2azes26laj5dwiyn5wdxa'
 
 */
 

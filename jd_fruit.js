@@ -1,4 +1,8 @@
-//搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_fruit.js),不弹窗提示
+/* 搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_fruit.js),不弹窗提示
+
+'118ef90ea2be4106ab45f3ff31c2a8f1@7b5f2dd4b5514226b280b702b2aab4f3@9e4d4547d5e3438a916c5ad8fe2c6f36'
+
+*/
 
 const $ = new Env('东东农场');
 let cookiesArr = [], cookie = '', jdFruitShareArr = [], isBox = false, notify, newShareCodes;
@@ -7,7 +11,7 @@ let cookiesArr = [], cookie = '', jdFruitShareArr = [], isBox = false, notify, n
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // 这个列表填入你要助力的好友的shareCode
    //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
-  '118ef90ea2be4106ab45f3ff31c2a8f1@7b5f2dd4b5514226b280b702b2aab4f3@9e4d4547d5e3438a916c5ad8fe2c6f36',
+  '118ef90ea2be4106ab45f3ff31c2a8f1@7b5f2dd4b5514226b280b702b2aab4f3@9e4d4547d5e3438a916c5ad8fe2c6f36'
 ]
 let message = '', subTitle = '', option = {}, UserName = '', isFruitFinished = false;
 const retainWater = 100;//保留水滴大于多少g,默认100g;
