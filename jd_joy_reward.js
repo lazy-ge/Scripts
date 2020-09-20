@@ -1,10 +1,11 @@
 //搬运自lxk0301(https://raw.githubusercontent.com/lxk0301/scripts/master/jd_joy_reward.js),不弹窗提示
 
+
 const $ = new Env('宠汪汪积分兑换奖品');
-const joyRewardName = $.getdata('joyRewardName') || 100;//兑换多少数量的京豆，默认兑换20京豆
+const joyRewardName = $.getdata('joyRewardName') || '1';//是否兑换京豆，默认开启兑换功能，其中'1'为兑换，'0'为不兑换京豆
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
-
+const notify = $.isNode() ? require('./sendNotify') : '';
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [], cookie = '';
 if ($.isNode()) {
@@ -16,7 +17,7 @@ if ($.isNode()) {
   cookiesArr.push($.getdata('CookieJD2'));
 }
 let UserName = '';
-const JD_API_HOST = 'https://jdjoy.jd.com/pet/';
+const JD_API_HOST = 'https://jdjoy.jd.com';
 !(async () => {
   if (!cookiesArr[0]) {
     $.msg('【京东账号一】宠汪汪积分兑换奖品失败', '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', {"open-url": "https://bean.m.jd.com/"});
@@ -30,6 +31,7 @@ const JD_API_HOST = 'https://jdjoy.jd.com/pet/';
       message = '';
       subTitle = '';
       await joyReward();
+      // $.msg($.name, '兑换脚本暂不能使用', `请停止使用，等待后期更新\n如果新版本兑换您有兑换机会，请抓包兑换\n再把抓包数据发送telegram用户@lxk0301`);
     }
   }
 })()
@@ -41,119 +43,57 @@ const JD_API_HOST = 'https://jdjoy.jd.com/pet/';
     })
 
 async function joyReward() {
-  let getExchangeRewardsRes = await getExchangeRewards();
+  const getExchangeRewardsRes = await getExchangeRewards();
   if (getExchangeRewardsRes.success) {
     // console.log('success', getExchangeRewardsRes);
-    const datas = getExchangeRewardsRes.datas;
-    const {score, petLevel, pin} = getExchangeRewardsRes.datas[0];
-    const canPetLevel = Math.ceil((petLevel - 0.5)/5);
-    console.log(`当前积分 ${score}\n`);
-    console.log(`宠物等级 ${petLevel}\n`);
-    console.log(`可兑换阶级 ${canPetLevel === 1 ? 'L1-5等级' : canPetLevel === 2 ? 'L6-10等级' : canPetLevel === 3 ? 'L10-15等级' : canPetLevel === 4 ? 'L6-20等级' : canPetLevel === 5 ? 'L21-25等级' : canPetLevel === 6 ? 'L26-30等级' : '最高级'}\n`);
-    console.log(`京东昵称 ${pin}\n`);
-
-    let todayExchanged =  datas.some((value, index, array) => value.todayExchanged === true)
-    console.log(`今日是否已兑换过奖品  ${todayExchanged ? '是':'否'}\n`);
-    let canReardArr = [];//，满足你当前的等级，以及积分足够的京豆奖品
-    if (!todayExchanged) {
-      for (let i = 0; i < canPetLevel; i++) {
-        for (let j = 0; j < datas[i].rewardDetailVOS.length; j++) {
-          if (datas[i].rewardDetailVOS[j].rewardType === 3 && datas[i].rewardDetailVOS[j].petScore < score) {
-            if (joyRewardName * 1 === -1) {
-              canReardArr.push({
-                'petLevel': datas[i].rewardDetailVOS[j].petLevel,
-                'rewardName': datas[i].rewardDetailVOS[j].rewardName,
-                'petScore': datas[i].rewardDetailVOS[j].petScore,
-                'leftStock': datas[i].rewardDetailVOS[j].leftStock,
-                'id': datas[i].rewardDetailVOS[j].id,
-              });
-            } else if (joyRewardName * 1 === 20) {
-              if (datas[i].rewardDetailVOS[j].rewardName === '20京豆') {
-                canReardArr.push({
-                  'petLevel': datas[i].rewardDetailVOS[j].petLevel,
-                  'rewardName': datas[i].rewardDetailVOS[j].rewardName,
-                  'petScore': datas[i].rewardDetailVOS[j].petScore,
-                  'leftStock': datas[i].rewardDetailVOS[j].leftStock,
-                  'id': datas[i].rewardDetailVOS[j].id,
-                });
-              }
-            } else if (joyRewardName * 1 === 50) {
-              if (datas[i].rewardDetailVOS[j].rewardName === '50京豆') {
-                canReardArr.push({
-                  'petLevel': datas[i].rewardDetailVOS[j].petLevel,
-                  'rewardName': datas[i].rewardDetailVOS[j].rewardName,
-                  'petScore': datas[i].rewardDetailVOS[j].petScore,
-                  'leftStock': datas[i].rewardDetailVOS[j].leftStock,
-                  'id': datas[i].rewardDetailVOS[j].id,
-                });
-              }
-            } else if (joyRewardName * 1 === 100) {
-              if (datas[i].rewardDetailVOS[j].rewardName === '100京豆') {
-                canReardArr.push({
-                  'petLevel': datas[i].rewardDetailVOS[j].petLevel,
-                  'rewardName': datas[i].rewardDetailVOS[j].rewardName,
-                  'petScore': datas[i].rewardDetailVOS[j].petScore,
-                  'leftStock': datas[i].rewardDetailVOS[j].leftStock,
-                  'id': datas[i].rewardDetailVOS[j].id,
-                });
-              }
-            } else if (joyRewardName * 1 === 500) {
-              if (datas[i].rewardDetailVOS[j].rewardName === '500京豆') {
-                canReardArr.push({
-                  'petLevel': datas[i].rewardDetailVOS[j].petLevel,
-                  'rewardName': datas[i].rewardDetailVOS[j].rewardName,
-                  'petScore': datas[i].rewardDetailVOS[j].petScore,
-                  'leftStock': datas[i].rewardDetailVOS[j].leftStock,
-                  'id': datas[i].rewardDetailVOS[j].id,
-                });
-              }
-            } else if (joyRewardName * 1 === 1000) {
-              if (datas[i].rewardDetailVOS[j].rewardName === '1000京豆') {
-                canReardArr.push({
-                  'petLevel': datas[i].rewardDetailVOS[j].petLevel,
-                  'rewardName': datas[i].rewardDetailVOS[j].rewardName,
-                  'petScore': datas[i].rewardDetailVOS[j].petScore,
-                  'leftStock': datas[i].rewardDetailVOS[j].leftStock,
-                  'id': datas[i].rewardDetailVOS[j].id,
-                });
-              }
-            }
-          }
-        }
+    const data = getExchangeRewardsRes.data;
+    const levelSaleInfos = data.levelSaleInfos;
+    const giftSaleInfos = levelSaleInfos.giftSaleInfos;
+    console.log(`当前积分 ${data.coin}\n`);
+    console.log(`宠物等级 ${data.level}\n`);
+    console.log(`京东昵称 ${UserName}\n`);
+    let saleInfoId = '', giftName= '', extInfo = '', leftStock = 0, salePrice = 0;
+    for (let item of giftSaleInfos) {
+      if (item.giftType === 'jd_bean') {
+        saleInfoId = item.id;
+        leftStock = item.leftStock;
+        salePrice = item.salePrice;
+        giftName = item.giftName;
       }
-      console.log('可兑换京豆的列表长度', canReardArr)
-      canReardArr.reverse();//倒序进行兑换奖品
-      if (canReardArr && canReardArr.length > 0) {
-        for (let item of canReardArr) {
-          // console.log('leftStock', item.leftStock)
-          let levelArea = item.petLevel === 1 ? 'L1-5等级' : item.petLevel === 2 ? 'L6-10等级' : item.petLevel === 3 ? 'L10-15等级' : item.petLevel === 4 ? 'L6-20等级' : item.petLevel === 5 ? 'L21-25等级' : item.petLevel === 6 ? 'L26-30等级' : '最高级';
-          if (item.leftStock > 0) {
-            let exchangeRes = await exchange(item.id);
-            if (exchangeRes.success) {
-              if (exchangeRes.data === 'exchange_success') {
-                console.log(`【京东账号${$.index}】${UserName}成功兑换 ${item.rewardName}花费 ${item.petScore}积分`);
-                $.msg($.name, `成功兑换 ${item.rewardName}`, `【京东账号${$.index}】${UserName}\n成功从${levelArea}区域兑换 ${item.rewardName}\n花费 ${item.petScore}积分\n`)
-              } else if (exchangeRes.data === 'stock_insufficient') {
-                console.log(`兑换${levelArea}区域的【${item.rewardName}】失败，原因：已抢光`)
-              } else if (exchangeRes.data === 'chance_full') {
-                console.log(`兑换${levelArea}区域的【${item.rewardName}】失败，原因：今日兑换机会已用完`)
+    }
+    console.log(`当前京豆库存:${leftStock}`)
+    // 兼容之前BoxJs兑换设置的数据
+    if (joyRewardName && (joyRewardName === '-1' || joyRewardName === '1' || joyRewardName === '20' || joyRewardName === '50' || joyRewardName === '100' || joyRewardName === '500' || joyRewardName === '1000')) {
+      //开始兑换
+      if (data.coin >= salePrice) {
+        if (leftStock) {
+          if (!saleInfoId) return
+          console.log(`当前账户积分:${data.coin}\n当前京豆库存:${leftStock}\n满足兑换条件,开始为您兑换京豆\n`);
+          const exchangeRes = await exchange(saleInfoId, 'pet');
+          if (exchangeRes.success) {
+            if (exchangeRes.errorCode === 'buy_success') {
+              console.log(`兑换${giftName}成功,【宠物等级】${data.level}\n【消耗积分】${salePrice}个\n【剩余积分】${data.coin - salePrice}个\n`)
+              $.msg($.name, `兑换${giftName}成功`, `【京东账号${$.index}】${UserName}\n【宠物等级】${data.level}\n【消耗积分】${salePrice}分\n【当前剩余】${data.coin - salePrice}积分\n`);
+              if ($.isNode()) {
+                await notify.sendNotify(`${$.name}`, `【京东账号${$.index}】 ${UserName}\n【兑换${giftName}】成功\n【宠物等级】${data.level}\n【消耗积分】${salePrice}分\n【当前剩余】${data.coin - salePrice}积分`);
               }
-            } else {
-              console.log('兑换奖励API调用失败')
+              // if ($.isNode()) {
+              //   await notify.BarkNotify(`${$.name}`, `【京东账号${$.index}】 ${UserName}\n【兑换${giftName}】成功\n【宠物等级】${data.level}\n【消耗积分】${salePrice}分\n【当前剩余】${data.coin - salePrice}积分`);
+              // }
+            } else if (exchangeRes.errorCode === 'buy_limit') {
+              console.log('兑换失败，原因：兑换京豆已达上限，请把机会留给更多的小伙伴~')
+              //$.msg($.name, `兑换${giftName}失败`, `【京东账号${$.index}】${UserName}\n兑换京豆已达上限\n请把机会留给更多的小伙伴~\n`)
             }
-          } else {
-            console.log(`兑换${levelArea}区域的【${item.rewardName}】失败，原因：奖品已抢光`)
           }
+        } else {
+          console.log('兑换失败，原因：京豆库存不足，已抢完，请下一场再兑换')
         }
       } else {
-        if (joyRewardName * 1 !== 0) {
-          $.msg($.name, '请在boxjs重新设置', `【京东账号${$.index} ${UserName}】当前设置兑换京豆数量不满足您宠汪汪的等级和积分\n`);
-        } else {
-          console.log('您在boxjs设置了不进行兑换奖品')
-        }
+        console.log(`兑换失败，原因：您目前只有${data.coin}积分，已不足兑换${giftName}所需的${salePrice}积分\n`)
+        //$.msg($.name, `兑换${giftName}失败`, `【京东账号${$.index}】${UserName}\n目前只有${data.coin}积分\n已不足兑换${giftName}所需的${salePrice}积分\n`)
       }
     } else {
-      console.log(`兑换失败，您今日已经兑换过一次奖品（每个京东账户每天只可兑换一次）`)
+      console.log('您设置了不兑换京豆,如需兑换京豆，请去BoxJs重新设置或修改第20行代码')
     }
   } else if (!getExchangeRewardsRes.success && getExchangeRewardsRes.errorCode === 'B0001') {
     $.msg($.name, `【提示】京东账号${$.index}${UserName}cookie已失效,请重新登录获取`, '请点击此处去获取Cookie\n https://bean.m.jd.com/ \n', {"open-url": "https://bean.m.jd.com/"});
@@ -162,13 +102,16 @@ async function joyReward() {
     } else if ($.index === 2){
       $.setdata('', 'CookieJD2');//cookie失效，故清空cookie。
     }
+    if ($.isNode() && notify.SCKEY) {
+      await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n\n请重新登录获取cookie`);
+    }
     // $.done();
   }
 }
 function getExchangeRewards() {
   return new Promise((resolve) => {
     const option = {
-      url: `${JD_API_HOST}getExchangeRewards`,
+      url: `${JD_API_HOST}/gift/getHomeInfo`,
       headers: {
         "Host": "jdjoy.jd.com",
         "Content-Type": "application/json",
@@ -195,11 +138,11 @@ function getExchangeRewards() {
     });
   })
 }
-function exchange(rewardId) {
+function exchange(rewardId, orderSource) {
   return new Promise((resolve) => {
     const option = {
-      url: `${JD_API_HOST}exchange`,
-      body: `${JSON.stringify({'id':rewardId})}`,
+      url: `${JD_API_HOST}/gift/exchange`,
+      body: `${JSON.stringify({'saleInfoId':rewardId, 'orderSource': orderSource})}`,
       headers: {
         "Host": "jdjoy.jd.com",
         "Accept": "*/*",
@@ -228,4 +171,4 @@ function exchange(rewardId) {
   })
 }
 // prettier-ignore
-function Env(t,s){return new class{constructor(t,s){this.name=t,this.data=null,this.dataFile="box.dat",this.logs=[],this.logSeparator="\n",this.startTime=(new Date).getTime(),Object.assign(this,s),this.log("",`\ud83d\udd14${this.name}, \u5f00\u59cb!`)}isNode(){return"undefined"!=typeof module&&!!module.exports}isQuanX(){return"undefined"!=typeof $task}isSurge(){return"undefined"!=typeof $httpClient&&"undefined"==typeof $loon}isLoon(){return"undefined"!=typeof $loon}getScript(t){return new Promise(s=>{$.get({url:t},(t,e,i)=>s(i))})}runScript(t,s){return new Promise(e=>{let i=this.getdata("@chavy_boxjs_userCfgs.httpapi");i=i?i.replace(/\n/g,"").trim():i;let o=this.getdata("@chavy_boxjs_userCfgs.httpapi_timeout");o=o?1*o:20,o=s&&s.timeout?s.timeout:o;const[h,a]=i.split("@"),r={url:`http://${a}/v1/scripting/evaluate`,body:{script_text:t,mock_type:"cron",timeout:o},headers:{"X-Key":h,Accept:"*/*"}};$.post(r,(t,s,i)=>e(i))}).catch(t=>this.logErr(t))}loaddata(){if(!this.isNode())return{};{this.fs=this.fs?this.fs:require("fs"),this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile),s=this.path.resolve(process.cwd(),this.dataFile),e=this.fs.existsSync(t),i=!e&&this.fs.existsSync(s);if(!e&&!i)return{};{const i=e?t:s;try{return JSON.parse(this.fs.readFileSync(i))}catch(t){return{}}}}}writedata(){if(this.isNode()){this.fs=this.fs?this.fs:require("fs"),this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile),s=this.path.resolve(process.cwd(),this.dataFile),e=this.fs.existsSync(t),i=!e&&this.fs.existsSync(s),o=JSON.stringify(this.data);e?this.fs.writeFileSync(t,o):i?this.fs.writeFileSync(s,o):this.fs.writeFileSync(t,o)}}lodash_get(t,s,e){const i=s.replace(/\[(\d+)\]/g,".$1").split(".");let o=t;for(const t of i)if(o=Object(o)[t],void 0===o)return e;return o}lodash_set(t,s,e){return Object(t)!==t?t:(Array.isArray(s)||(s=s.toString().match(/[^.[\]]+/g)||[]),s.slice(0,-1).reduce((t,e,i)=>Object(t[e])===t[e]?t[e]:t[e]=Math.abs(s[i+1])>>0==+s[i+1]?[]:{},t)[s[s.length-1]]=e,t)}getdata(t){let s=this.getval(t);if(/^@/.test(t)){const[,e,i]=/^@(.*?)\.(.*?)$/.exec(t),o=e?this.getval(e):"";if(o)try{const t=JSON.parse(o);s=t?this.lodash_get(t,i,""):s}catch(t){s=""}}return s}setdata(t,s){let e=!1;if(/^@/.test(s)){const[,i,o]=/^@(.*?)\.(.*?)$/.exec(s),h=this.getval(i),a=i?"null"===h?null:h||"{}":"{}";try{const s=JSON.parse(a);this.lodash_set(s,o,t),e=this.setval(JSON.stringify(s),i)}catch(s){const h={};this.lodash_set(h,o,t),e=this.setval(JSON.stringify(h),i)}}else e=$.setval(t,s);return e}getval(t){return this.isSurge()||this.isLoon()?$persistentStore.read(t):this.isQuanX()?$prefs.valueForKey(t):this.isNode()?(this.data=this.loaddata(),this.data[t]):this.data&&this.data[t]||null}setval(t,s){return this.isSurge()||this.isLoon()?$persistentStore.write(t,s):this.isQuanX()?$prefs.setValueForKey(t,s):this.isNode()?(this.data=this.loaddata(),this.data[s]=t,this.writedata(),!0):this.data&&this.data[s]||null}initGotEnv(t){this.got=this.got?this.got:require("got"),this.cktough=this.cktough?this.cktough:require("tough-cookie"),this.ckjar=this.ckjar?this.ckjar:new this.cktough.CookieJar,t&&(t.headers=t.headers?t.headers:{},void 0===t.headers.Cookie&&void 0===t.cookieJar&&(t.cookieJar=this.ckjar))}get(t,s=(()=>{})){t.headers&&(delete t.headers["Content-Type"],delete t.headers["Content-Length"]),this.isSurge()||this.isLoon()?$httpClient.get(t,(t,e,i)=>{!t&&e&&(e.body=i,e.statusCode=e.status),s(t,e,i)}):this.isQuanX()?$task.fetch(t).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t)):this.isNode()&&(this.initGotEnv(t),this.got(t).on("redirect",(t,s)=>{try{const e=t.headers["set-cookie"].map(this.cktough.Cookie.parse).toString();this.ckjar.setCookieSync(e,null),s.cookieJar=this.ckjar}catch(t){this.logErr(t)}}).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t)))}post(t,s=(()=>{})){if(t.body&&t.headers&&!t.headers["Content-Type"]&&(t.headers["Content-Type"]="application/x-www-form-urlencoded"),delete t.headers["Content-Length"],this.isSurge()||this.isLoon())$httpClient.post(t,(t,e,i)=>{!t&&e&&(e.body=i,e.statusCode=e.status),s(t,e,i)});else if(this.isQuanX())t.method="POST",$task.fetch(t).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t));else if(this.isNode()){this.initGotEnv(t);const{url:e,...i}=t;this.got.post(e,i).then(t=>{const{statusCode:e,statusCode:i,headers:o,body:h}=t;s(null,{status:e,statusCode:i,headers:o,body:h},h)},t=>s(t))}}time(t){let s={"M+":(new Date).getMonth()+1,"d+":(new Date).getDate(),"H+":(new Date).getHours(),"m+":(new Date).getMinutes(),"s+":(new Date).getSeconds(),"q+":Math.floor(((new Date).getMonth()+3)/3),S:(new Date).getMilliseconds()};/(y+)/.test(t)&&(t=t.replace(RegExp.$1,((new Date).getFullYear()+"").substr(4-RegExp.$1.length)));for(let e in s)new RegExp("("+e+")").test(t)&&(t=t.replace(RegExp.$1,1==RegExp.$1.length?s[e]:("00"+s[e]).substr((""+s[e]).length)));return t}msg(s=t,e="",i="",o){const h=t=>!t||!this.isLoon()&&this.isSurge()?t:"string"==typeof t?this.isLoon()?t:this.isQuanX()?{"open-url":t}:void 0:"object"==typeof t&&(t["open-url"]||t["media-url"])?this.isLoon()?t["open-url"]:this.isQuanX()?t:void 0:void 0;$.isMute||(this.isSurge()||this.isLoon()?$notification.post(s,e,i,h(o)):this.isQuanX()&&$notify(s,e,i,h(o))),this.logs.push("","==============\ud83d\udce3\u7cfb\u7edf\u901a\u77e5\ud83d\udce3=============="),this.logs.push(s),e&&this.logs.push(e),i&&this.logs.push(i)}log(...t){t.length>0?this.logs=[...this.logs,...t]:console.log(this.logs.join(this.logSeparator))}logErr(t,s){const e=!this.isSurge()&&!this.isQuanX()&&!this.isLoon();e?$.log("",`\u2757\ufe0f${this.name}, \u9519\u8bef!`,t.stack):$.log("",`\u2757\ufe0f${this.name}, \u9519\u8bef!`,t)}wait(t){return new Promise(s=>setTimeout(s,t))}done(t={}){const s=(new Date).getTime(),e=(s-this.startTime)/1e3;this.log("",`\ud83d\udd14${this.name}, \u7ed3\u675f! \ud83d\udd5b ${e} \u79d2`),this.log(),(this.isSurge()||this.isQuanX()||this.isLoon())&&$done(t)}}(t,s)}
+function Env(t,e){class s{constructor(t){this.env=t}send(t,e="GET"){t="string"==typeof t?{url:t}:t;let s=this.get;return"POST"===e&&(s=this.post),new Promise((e,i)=>{s.call(this,t,(t,s,o)=>{t?i(t):e(s)})})}get(t){return this.send.call(this.env,t)}post(t){return this.send.call(this.env,t,"POST")}}return new class{constructor(t,e){this.name=t,this.http=new s(this),this.data=null,this.dataFile="box.dat",this.logs=[],this.isMute=!1,this.logSeparator="\n",this.startTime=(new Date).getTime(),Object.assign(this,e),this.log("",`\ud83d\udd14${this.name}, \u5f00\u59cb!`)}isNode(){return"undefined"!=typeof module&&!!module.exports}isQuanX(){return"undefined"!=typeof $task}isSurge(){return"undefined"!=typeof $httpClient&&"undefined"==typeof $loon}isLoon(){return"undefined"!=typeof $loon}toObj(t,e=null){try{return JSON.parse(t)}catch{return e}}toStr(t,e=null){try{return JSON.stringify(t)}catch{return e}}getjson(t,e){let s=e;const i=this.getdata(t);if(i)try{s=JSON.parse(this.getdata(t))}catch{}return s}setjson(t,e){try{return this.setdata(JSON.stringify(t),e)}catch{return!1}}getScript(t){return new Promise(e=>{this.get({url:t},(t,s,i)=>e(i))})}runScript(t,e){return new Promise(s=>{let i=this.getdata("@chavy_boxjs_userCfgs.httpapi");i=i?i.replace(/\n/g,"").trim():i;let o=this.getdata("@chavy_boxjs_userCfgs.httpapi_timeout");o=o?1*o:20,o=e&&e.timeout?e.timeout:o;const[r,h]=i.split("@"),a={url:`http://${h}/v1/scripting/evaluate`,body:{script_text:t,mock_type:"cron",timeout:o},headers:{"X-Key":r,Accept:"*/*"}};this.post(a,(t,e,i)=>s(i))}).catch(t=>this.logErr(t))}loaddata(){if(!this.isNode())return{};{this.fs=this.fs?this.fs:require("fs"),this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile),e=this.path.resolve(process.cwd(),this.dataFile),s=this.fs.existsSync(t),i=!s&&this.fs.existsSync(e);if(!s&&!i)return{};{const i=s?t:e;try{return JSON.parse(this.fs.readFileSync(i))}catch(t){return{}}}}}writedata(){if(this.isNode()){this.fs=this.fs?this.fs:require("fs"),this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile),e=this.path.resolve(process.cwd(),this.dataFile),s=this.fs.existsSync(t),i=!s&&this.fs.existsSync(e),o=JSON.stringify(this.data);s?this.fs.writeFileSync(t,o):i?this.fs.writeFileSync(e,o):this.fs.writeFileSync(t,o)}}lodash_get(t,e,s){const i=e.replace(/\[(\d+)\]/g,".$1").split(".");let o=t;for(const t of i)if(o=Object(o)[t],void 0===o)return s;return o}lodash_set(t,e,s){return Object(t)!==t?t:(Array.isArray(e)||(e=e.toString().match(/[^.[\]]+/g)||[]),e.slice(0,-1).reduce((t,s,i)=>Object(t[s])===t[s]?t[s]:t[s]=Math.abs(e[i+1])>>0==+e[i+1]?[]:{},t)[e[e.length-1]]=s,t)}getdata(t){let e=this.getval(t);if(/^@/.test(t)){const[,s,i]=/^@(.*?)\.(.*?)$/.exec(t),o=s?this.getval(s):"";if(o)try{const t=JSON.parse(o);e=t?this.lodash_get(t,i,""):e}catch(t){e=""}}return e}setdata(t,e){let s=!1;if(/^@/.test(e)){const[,i,o]=/^@(.*?)\.(.*?)$/.exec(e),r=this.getval(i),h=i?"null"===r?null:r||"{}":"{}";try{const e=JSON.parse(h);this.lodash_set(e,o,t),s=this.setval(JSON.stringify(e),i)}catch(e){const r={};this.lodash_set(r,o,t),s=this.setval(JSON.stringify(r),i)}}else s=this.setval(t,e);return s}getval(t){return this.isSurge()||this.isLoon()?$persistentStore.read(t):this.isQuanX()?$prefs.valueForKey(t):this.isNode()?(this.data=this.loaddata(),this.data[t]):this.data&&this.data[t]||null}setval(t,e){return this.isSurge()||this.isLoon()?$persistentStore.write(t,e):this.isQuanX()?$prefs.setValueForKey(t,e):this.isNode()?(this.data=this.loaddata(),this.data[e]=t,this.writedata(),!0):this.data&&this.data[e]||null}initGotEnv(t){this.got=this.got?this.got:require("got"),this.cktough=this.cktough?this.cktough:require("tough-cookie"),this.ckjar=this.ckjar?this.ckjar:new this.cktough.CookieJar,t&&(t.headers=t.headers?t.headers:{},void 0===t.headers.Cookie&&void 0===t.cookieJar&&(t.cookieJar=this.ckjar))}get(t,e=(()=>{})){t.headers&&(delete t.headers["Content-Type"],delete t.headers["Content-Length"]),this.isSurge()||this.isLoon()?$httpClient.get(t,(t,s,i)=>{!t&&s&&(s.body=i,s.statusCode=s.status),e(t,s,i)}):this.isQuanX()?$task.fetch(t).then(t=>{const{statusCode:s,statusCode:i,headers:o,body:r}=t;e(null,{status:s,statusCode:i,headers:o,body:r},r)},t=>e(t)):this.isNode()&&(this.initGotEnv(t),this.got(t).on("redirect",(t,e)=>{try{const s=t.headers["set-cookie"].map(this.cktough.Cookie.parse).toString();this.ckjar.setCookieSync(s,null),e.cookieJar=this.ckjar}catch(t){this.logErr(t)}}).then(t=>{const{statusCode:s,statusCode:i,headers:o,body:r}=t;e(null,{status:s,statusCode:i,headers:o,body:r},r)},t=>e(t)))}post(t,e=(()=>{})){if(t.body&&t.headers&&!t.headers["Content-Type"]&&(t.headers["Content-Type"]="application/x-www-form-urlencoded"),t.headers&&delete t.headers["Content-Length"],this.isSurge()||this.isLoon())$httpClient.post(t,(t,s,i)=>{!t&&s&&(s.body=i,s.statusCode=s.status),e(t,s,i)});else if(this.isQuanX())t.method="POST",$task.fetch(t).then(t=>{const{statusCode:s,statusCode:i,headers:o,body:r}=t;e(null,{status:s,statusCode:i,headers:o,body:r},r)},t=>e(t));else if(this.isNode()){this.initGotEnv(t);const{url:s,...i}=t;this.got.post(s,i).then(t=>{const{statusCode:s,statusCode:i,headers:o,body:r}=t;e(null,{status:s,statusCode:i,headers:o,body:r},r)},t=>e(t))}}time(t){let e={"M+":(new Date).getMonth()+1,"d+":(new Date).getDate(),"H+":(new Date).getHours(),"m+":(new Date).getMinutes(),"s+":(new Date).getSeconds(),"q+":Math.floor(((new Date).getMonth()+3)/3),S:(new Date).getMilliseconds()};/(y+)/.test(t)&&(t=t.replace(RegExp.$1,((new Date).getFullYear()+"").substr(4-RegExp.$1.length)));for(let s in e)new RegExp("("+s+")").test(t)&&(t=t.replace(RegExp.$1,1==RegExp.$1.length?e[s]:("00"+e[s]).substr((""+e[s]).length)));return t}msg(e=t,s="",i="",o){const r=t=>{if(!t||!this.isLoon()&&this.isSurge())return t;if("string"==typeof t)return this.isLoon()?t:this.isQuanX()?{"open-url":t}:void 0;if("object"==typeof t){if(this.isLoon()){let e=t.openUrl||t["open-url"],s=t.mediaUrl||t["media-url"];return{openUrl:e,mediaUrl:s}}if(this.isQuanX()){let e=t["open-url"]||t.openUrl,s=t["media-url"]||t.mediaUrl;return{"open-url":e,"media-url":s}}}};this.isMute||(this.isSurge()||this.isLoon()?$notification.post(e,s,i,r(o)):this.isQuanX()&&$notify(e,s,i,r(o)));let h=["","==============\ud83d\udce3\u7cfb\u7edf\u901a\u77e5\ud83d\udce3=============="];h.push(e),s&&h.push(s),i&&h.push(i),console.log(h.join("\n")),this.logs=this.logs.concat(h)}log(...t){t.length>0&&(this.logs=[...this.logs,...t]),console.log(t.join(this.logSeparator))}logErr(t,e){const s=!this.isSurge()&&!this.isQuanX()&&!this.isLoon();s?this.log("",`\u2757\ufe0f${this.name}, \u9519\u8bef!`,t.stack):this.log("",`\u2757\ufe0f${this.name}, \u9519\u8bef!`,t)}wait(t){return new Promise(e=>setTimeout(e,t))}done(t={}){const e=(new Date).getTime(),s=(e-this.startTime)/1e3;this.log("",`\ud83d\udd14${this.name}, \u7ed3\u675f! \ud83d\udd5b ${s} \u79d2`),this.log(),(this.isSurge()||this.isQuanX()||this.isLoon())&&$done(t)}}(t,e)}
